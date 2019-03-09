@@ -4,17 +4,17 @@ clear
 SI_units
 
 
-C0 = 14.3*pF;
-C1 = 0.56*C0;
+C0 = 14.3*pF;    % max capacitance
+C1 = 0.56*C0;    % min capacitance
 L = 3.3*nH;
-R = 777*ohm;
+R = 2*pi*750e6*L*50;
 
 
 % Creating circuit and setting params
 crt = FloquetCircuit();
 crt.freq = linspace(0.6,0.9,301)*GHz;
 crt.freq_mod = 0.230*GHz;
-crt.N_orders = 1;
+crt.N_orders = 1; 
 
 
 t = linspace(0, 1/crt.freq_mod, pow2(12)); % length(t) should be the power of 2
@@ -36,8 +36,4 @@ crt.analyze();
 
 
 figure
-plot_sparam_mag(crt,'CIRCULATOR', {'S(2,1)','S(3,2)','S(1,3)','S(1,2)','S(2,3)','S(3,1)'},...
-    'XUnits','GHz',...
-    'YUnits','dB');
-
-
+plot_sparam_mag(crt,'CIRCULATOR', {'S(2,1)','S(3,2)','S(1,3)','S(1,2)','S(2,3)','S(3,1)'});

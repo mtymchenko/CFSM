@@ -1,7 +1,7 @@
 
 
 clear
-SI_system
+SI_units
 
 L_max = 10*nH;
 L_min = 9*nH;
@@ -18,7 +18,8 @@ add_inductor(crt, 'IND', L_min + (L_max-L_min)*rectangularPulse(0,0.5,crt.freq_m
 crt.analyze();
 
 figure
-plot_sparam_mag(crt,'IND', {'S(1,1)','S(2,1)'}, 'XUnits', 'GHz');
+subplot(2,1,1)
+plot_sparam_mag(crt,'IND','XUnits','GHz');
 
-figure
-plot_sparam_phase(crt,'IND', {'S(1,1)','S(2,1)'}, 'XUnits', 'GHz','YUnits', 'deg');
+subplot(2,1,2)
+plot_sparam_phase(crt,'IND','XUnits','GHz');

@@ -1,7 +1,7 @@
 
 
 clear
-SI_system
+SI_units
 
 crt = FloquetCircuit();
 crt.freq = linspace(0.5, 1.5, 50)*GHz;   % frequency range

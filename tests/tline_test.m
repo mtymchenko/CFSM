@@ -1,8 +1,7 @@
 
 
 clear
-addpath(genpath('../../../CFSM_v0.8'))
-SI_system
+SI_units
 
 crt = FloquetCircuit();
 crt.freq = linspace(0.001,5,301)*GHz;   % frequency range
@@ -13,10 +12,15 @@ crt.Z0 = 50*ohm;
 v_phase_handle = @(om) c0/3;
 length = 50*mm;
 
-add_tline(crt, 'TLINE', length, v_phase_handle, 100*ohm);
+add_tline(crt, 'TLINE', length, v_phase_handle, 200*ohm);
 
 
 crt.analyze();
 
+
 figure
-plot_sparam_mag_db(crt, 'TLINE');
+subplot(2,1,1)
+plot_sparam_mag(crt,'TLINE','XUnits','GHz');
+
+subplot(2,1,2)
+plot_sparam_phase(crt,'TLINE','XUnits','GHz');

@@ -1,14 +1,14 @@
 
 
 clear
-addpath(genpath('../../CFSM_v0.8'))
-SI_system
+config
+SI_units
 
 % Creating circuit and setting params
 crt = FloquetCircuit();
 crt.freq = linspace(0,3,300)*GHz;
 crt.freq_mod = 1*GHz;
-crt.N_orders = 0;
+crt.N_orders = 1;
 
 % Creating circuit elements
 % and adding elements to circuit as components
@@ -25,5 +25,5 @@ connect_in_series(crt, 'CHEBFILTER', {'IND1','SHUNT_CAP','IND2','SHUNT_CAP','IND
 crt.analyze();
 
 
-plot_sparam_mag_db(crt,'CHEBFILTER');
+plot_sparam_mag(crt,'CHEBFILTER', 'XUnits', 'GHz', 'YUnits', 'dB');
 axis([min(crt.freq)/GHz max(crt.freq)/GHz -50 0])
