@@ -22,17 +22,17 @@ td = T/2;
 
 t = linspace(0,T,pow2(12));
 
-% resistors on branch1
+% Switches on branch1
 add_resistor(crt, 'SWITCH_A1', R_min + R_max*(1-pulstran(t,D,'rectpuls',w)) );
 add_resistor(crt, 'SWITCH_B1', R_min + R_max*(1-pulstran(t+T/4,D,'rectpuls',w)) );
 
-% resistors on branch2
+% Switches on branch2
 add_resistor(crt, 'SWITCH_A2', R_min + R_max*(1-pulstran(t+T/2,D,'rectpuls',w)) );
 add_resistor(crt, 'SWITCH_B2', R_min + R_max*(1-pulstran(t+3*T/4,D,'rectpuls',w)) );
 
 
-vp_handle = @(om) c0/sqrt(3); 
-length = vp_handle(2*pi*crt.freq_mod)/crt.freq_mod/4;
+vp_handle = @(om) c0/sqrt(3); % phase velocity vp(omega) handle 
+length = vp_handle(2*pi*crt.freq_mod)/crt.freq_mod/4; % quarter-wavelength section
 
 add_tline(crt, 'TLINE', length, vp_handle, 100*ohm)
 
@@ -47,13 +47,14 @@ connect_by_ports(crt, 'GYRATOR', {'PIN','BRANCH1','BRANCH2','PIN'},...
 
 crt.analyze();
 
-%%
+
 figure
+subplot(2,1,1)
 plot_sparam_mag(crt,'GYRATOR',{'S(1,1)','S(2,1)','S(1,2)','S(2,2)'},...
     'XUnits', 'GHz',...
     'YUnits', 'dB');
 
-figure
+subplot(2,1,2)
 plot_sparam_phase(crt,'GYRATOR',{'S(1,1)','S(2,1)','S(1,2)','S(2,2)'},...
     'XUnits', 'GHz',...
     'YUnits', 'deg');

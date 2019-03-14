@@ -16,7 +16,7 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function [factor, label] = get_SI_unit(unit)
+function factor = get_SI_unit(unit)
 
 if ismember(unit(1), 'TGMkmunpfa')
     prefix = unit(1);
@@ -27,7 +27,7 @@ else
 end % if
 
 if ~isempty(prefix)
-    if  strcmp(prefix, 'P');  factor = 1e15;
+    if      strcmp(prefix, 'P');  factor = 1e15;
     elseif  strcmp(prefix, 'T');  factor = 1e12;
     elseif  strcmp(prefix, 'G');  factor = 1e9;
     elseif  strcmp(prefix, 'M');  factor = 1e6;
@@ -42,19 +42,21 @@ if ~isempty(prefix)
     end % if
 end % if
 
-if  strcmp(unit, 'Hz') || strcmp(unit, 'Hertzs'); label = [prefix,'Hz'];
-elseif  strcmp(unit, '1') || strcmp(unit, '1'); label = [prefix,''];
-elseif  strcmp(unit, 'ohm') || strcmp(unit, 'Ohms'); label = [prefix,'\Omega'];
-elseif  strcmp(unit, 'V') || strcmp(unit, 'Volts'); label = [prefix,'V'];
-elseif  strcmp(unit, 'F') || strcmp(unit, 'Farads'); label = [prefix,'F'];
-elseif  strcmp(unit, 'H') || strcmp(unit, 'Henrys'); label = [prefix,'H'];
-elseif  strcmp(unit, 'A') || strcmp(unit, 'Amperes'); label = [prefix,'A'];
-elseif  strcmp(unit, 'W') || strcmp(unit, 'Watts'); label = [prefix,'W'];
-elseif  strcmp(unit, 'J') || strcmp(unit, 'Joules'); label = [prefix,'J'];
-elseif  strcmp(unit, 's') || strcmp(unit, 'sec') || strcmp(unit, 'seconds'); label = [prefix,'s'];
-elseif  strcmp(unit, 'dB') || strcmp(unit, 'decibels'); label = [prefix,'dB'];
-else
-    error('Unknown units');
-end % if
+end
+
+% if      strcmp(unit, 'Hz') || strcmp(unit, 'Hertzs'); label = [prefix,'Hz'];
+% elseif  strcmp(unit, '') || label = [prefix,''];
+% elseif  strcmp(unit, 'ohm') || strcmp(unit, 'Ohms'); label = [prefix,'\Omega'];
+% elseif  strcmp(unit, 'V') || strcmp(unit, 'Volts'); label = [prefix,'V'];
+% elseif  strcmp(unit, 'F') || strcmp(unit, 'Farads'); label = [prefix,'F'];
+% elseif  strcmp(unit, 'H') || strcmp(unit, 'Henrys'); label = [prefix,'H'];
+% elseif  strcmp(unit, 'A') || strcmp(unit, 'Amperes'); label = [prefix,'A'];
+% elseif  strcmp(unit, 'W') || strcmp(unit, 'Watts'); label = [prefix,'W'];
+% elseif  strcmp(unit, 'J') || strcmp(unit, 'Joules'); label = [prefix,'J'];
+% elseif  strcmp(unit, 's') || strcmp(unit, 'sec') || strcmp(unit, 'seconds'); label = [prefix,'s'];
+% elseif  strcmp(unit, 'dB') || strcmp(unit, 'decibels'); label = [prefix,'dB'];
+% else
+%     error('Unknown units');
+% end % if
 
 end

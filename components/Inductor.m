@@ -28,7 +28,7 @@ classdef Inductor < FloquetCircuitComponent
         
         function self = Inductor(varargin)
         % Constructor function
-            self.component_type = 'inductor';
+            self.type = 'inductor';
             self.N_ports = 2;
             
             % Parsing input

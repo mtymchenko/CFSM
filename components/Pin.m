@@ -26,7 +26,7 @@ classdef Pin < FloquetCircuitComponent
         
         function self = Pin(varargin)
         % Constructor function    
-            self.component_type = 'pin';
+            self.type = 'pin';
             self.N_ports = 2;
             % Parsing input    
             if (~isempty(varargin))

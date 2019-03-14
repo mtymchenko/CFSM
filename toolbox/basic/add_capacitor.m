@@ -15,30 +15,13 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-%
-%
-% ***********************************************************************
-% Creates a network like this
-%
-%            R1(t)          R2(t)
-%            ____           ____
-%    1 o----|____|----.----|____|----o 2 
-%                     |
-%                   __|__
-%                   _____ C
-%                     |
-%                   __|__
-%                   /////  
-%
-% ***********************************************************************
 
-function add_switched_capacitor(crt, name, C, R1, R2)
+function add_capacitor(crt, name, C, varargin)
 
-add_capacitor(crt, ['CAP_',name], C);
-add_resistor(crt, ['SWA_',name], R1 );
-add_resistor(crt, ['SWB_',name], R2 );
+crt.add( Capacitor(...
+    'Name', name,...
+    'Capacitance', C,...
+    varargin{:}));
 
-make_shunt_T(crt, ['SHUNT_CAP_',name], {['CAP_',name]})
-connect_in_series(crt, name, {['SWA_',name], ['SHUNT_CAP_',name], ['SWB_',name]});
-
+end
 

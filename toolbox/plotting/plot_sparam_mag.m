@@ -16,34 +16,34 @@
 
 function [plt, l] = plot_sparam_mag(crt, id, varargin)
 
+narginchk(2,9)
+
 p = inputParser;
-addOptional(p, 'XUnits', 'Hz', @(x) any(validatestring(x, {'Hz','kHz','MHz','GHz','THz','PHz'})))
+addRequired(p, 'crt', @(x) isobject(x) )
+addRequired(p, 'id', @(x) ischar(x) || @(x) isnumeric(x) )
+addOptional(p, 'SParams', [], @(x) iscell(x));
+addOptional(p, 'm', 0, @(x) isnumeric(x));
+addOptional(p, 'n', 0, @(x) isnumeric(x));
+addOptional(p, 'XUnits', 'Hz', @(x) any(validatestring(x, {'Hz','kHz','MHz','GHz','THz','PHz'})));
 addOptional(p, 'YUnits', 'dB', @(x) any(validatestring(x, {'linear','dB'})))
+parse(p, crt, id, varargin{:})
 
-nargin1 = nargin-2;
+crt = p.Results.crt;
+cmp = crt.compid(p.Results.id);
+sparams = p.Results.SParams;
+m = p.Results.m;
+n = p.Results.n;
+x_units = p.Results.XUnits;
+y_units = p.Results.YUnits;
 
-if nargin1 >= 1 && iscell(varargin{1})
-    sparams = varargin{1};
-    if  nargin1 >= 3 && isnumeric(varargin{2}) && isnumeric(varargin{3})
-        m = varargin{2};
-        n = varargin{3};
-        parse(p, varargin{4:end})
-    else
-        m = 0;
-        n = 0;
-        parse(p, varargin{2:end})
-    end 
-else
-    sparams = crt.compid(id).list_all_sparams();
-    m = 0;
-    n = 0;
-    parse(p, varargin{:})
+if isempty(sparams)
+    sparams = cmp.list_all_sparams();
 end
 
-x_unit_factor = get_unit_factor(p.Results.XUnits);
+x_unit_factor = get_unit_factor(x_units);
 
-X = crt.freq/x_unit_factor;
-Y = zeros(numel(sparams)*numel(m)*numel(n), numel(crt.freq));
+X = crt.freq; 
+Y = zeros(numel(sparams)*numel(m)*numel(n), numel(X));
 
 legend_entries = cell(numel(sparams)*numel(m)*numel(n),1);
 i_curve = 1;
@@ -52,32 +52,30 @@ for i_sparam = 1:numel(sparams)
     ports = sscanf(sparam,'S(%d,%d)');
     if numel(m)==1 && numel(n)==1 && m==0 && n==0
         legend_entries{i_curve} = sprintf('S_{%d,%d}', ports(1), ports(2));
-        Y(i_curve,:) = abs(squeeze(crt.compid(id).get_sparam(ports(1),ports(2),m,n)));
+        Y(i_curve,:) = abs(squeeze(cmp.get_sparam(ports(1),ports(2),m,n)));
         i_curve = i_curve+1;
     else
         for im = 1:numel(m)
             for in = 1:numel(n)
                 legend_entries{i_curve} = sprintf('S_{%d,%d} (f_{%d}, f_{%d})', ports(1), ports(2), m(im), n(in));    
-                Y(i_curve,:) = abs(squeeze(crt.compid(id).get_sparam(ports(1),ports(2),m(im),n(in))));
+                Y(i_curve,:) = abs(squeeze(cmp.get_sparam(ports(1),ports(2),m(im),n(in))));
                 i_curve = i_curve+1;
             end
         end
     end
 end
 
-
-if strcmp(p.Results.YUnits, 'dB')
-    plt = plot(X, mag2db(Y), 'LineWidth', 1.5);
+if strcmp(y_units, 'dB')
+    plt = plot(X/x_unit_factor, mag2db(Y), 'LineWidth', 1.5);
     ylabel('Magnitude (dB)');
-elseif strcmp(p.Results.YUnits, 'linear')
-    plt = plot(X, Y, 'LineWidth', 1.5);
+elseif strcmp(y_units, 'linear')
+    plt = plot(X/x_unit_factor, Y, 'LineWidth', 1.5);
     ylabel('Magnitude');
 end
-axis([min(X) max(X) -inf inf])
-title('S-parameters')
-xlabel(['Frequency, f (', p.Results.XUnits ,')']);
+xlabel(['Frequency, f (', x_units ,')']);
 l = legend(legend_entries{:});
 l.Location = 'SouthEast';
+axis tight
 grid on
 end
 

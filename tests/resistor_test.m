@@ -20,7 +20,7 @@ crt.analyze();
 
 
 figure
-plot_resistance(crt,'RES')
+plot_resistance(crt,'RES', 'XUnits', 'ns')
 
 figure
 subplot(2,1,1)

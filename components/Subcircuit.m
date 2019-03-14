@@ -49,7 +49,7 @@ classdef Subcircuit < FloquetCircuitComponent
         
         function self = Subcircuit(varargin)
         % Constructor function
-            self.component_type = 'circuit';
+            self.type = 'circuit';
             self.solver_mode = 0;
             self.is_blackbox = 1;
             % Parsing input

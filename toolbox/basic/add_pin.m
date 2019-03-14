@@ -16,9 +16,12 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function add_joint(crt, name, N_ports)
+function add_pin(crt, name, varargin)
 
 crt.add(Joint(...
     'Name', name,...
-    'NumPorts', N_ports));
+    'NumPorts', 2,...
+    varargin{:}))
+
+end
 

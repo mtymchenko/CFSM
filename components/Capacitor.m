@@ -28,7 +28,7 @@ classdef Capacitor < FloquetCircuitComponent
         
         function self = Capacitor(varargin)
         % Constructor function    
-            self.component_type = 'capacitor';
+            self.type = 'capacitor';
             self.N_ports = 2;            
             % Parsing input
             if (~isempty(varargin))

@@ -16,35 +16,37 @@
 
 function [plt, l] = plot_sparam_phase(crt, id, varargin)
 
+
+narginchk(2,9)
+
 p = inputParser;
-addOptional(p, 'XUnits', 'Hz', @(x) any(validatestring(x, {'Hz','kHz','MHz','GHz','THz','PHz'})))
-addOptional(p, 'YUnits', 'rad', @(x) any(validatestring(x, {'rad','deg','pi'})))
-addOptional(p, 'PostProcess', 'auto', @(x) any(validatestring(x, {'auto','unwrap'})))
+addRequired(p, 'crt', @(x) isobject(x) );
+addRequired(p, 'id', @(x) ischar(x) || @(x) isnumeric(x) );
+addOptional(p, 'SParams', [], @(x) iscell(x));
+addOptional(p, 'm', 0, @(x) isnumeric(x) );
+addOptional(p, 'n', 0, @(x) isnumeric(x) );
+addOptional(p, 'XUnits', 'Hz', @(x) any(validatestring(x, {'Hz','kHz','MHz','GHz','THz','PHz'})) );
+addOptional(p, 'YUnits', 'rad', @(x) any(validatestring(x, {'rad','deg','pi'})) );
+addOptional(p, 'PostProcess', 'auto', @(x) any(validatestring(x, {'auto','unwrap'})) );
+parse(p, crt, id, varargin{:})
 
-N_optional_args = nargin-2;
+crt = p.Results.crt;
+cmp = crt.compid(p.Results.id);
+sparams = p.Results.SParams;
+m = p.Results.m;
+n = p.Results.n;
+x_units = p.Results.XUnits;
+y_units = p.Results.YUnits;
+postprocess = p.Results.PostProcess;
 
-if N_optional_args >= 1 && iscell(varargin{1})
-    sparams = varargin{1};
-    if  N_optional_args >= 3 && isnumeric(varargin{2}) && isnumeric(varargin{3})
-        m = varargin{2};
-        n = varargin{3};
-        parse(p, varargin{4:end})
-    else
-        m = 0;
-        n = 0;
-        parse(p, varargin{2:end})
-    end 
-else
-    sparams = crt.compid(id).list_all_sparams();
-    m = 0;
-    n = 0;
-    parse(p, varargin{:})
+if isempty(sparams)
+    sparams = cmp.list_all_sparams();
 end
 
-x_unit_factor = get_unit_factor(p.Results.XUnits);
+x_unit_factor = get_unit_factor(x_units);
 
-X = crt.freq/x_unit_factor;
-Y = zeros(numel(sparams)*numel(m)*numel(n), numel(crt.freq));
+X = crt.freq;
+Y = zeros(numel(sparams)*numel(m)*numel(n), numel(X));
 
 legend_entries = cell(numel(sparams)*numel(m)*numel(n),1);
 i_curve = 1;
@@ -66,25 +68,24 @@ for i_sparam = 1:numel(sparams)
     end
 end
 
-if strcmp(p.Results.PostProcess, 'unwrap')
+if strcmp(postprocess, 'unwrap')
     Y = unwrap(Y,[],2);
 end
 
-if strcmp(p.Results.YUnits, 'deg')
-    plt = plot(X, rad2deg(Y), 'LineWidth', 1.5);
+if strcmp(y_units, 'deg')
+    plt = plot(X/x_unit_factor, rad2deg(Y), 'LineWidth', 1.5);
     ylabel(['Phase (deg)']);
-elseif strcmp(p.Results.YUnits, 'rad')
-    plt = plot(X, Y, 'LineWidth', 1.5);
+elseif strcmp(y_units, 'rad')
+    plt = plot(X/x_unit_factor, Y, 'LineWidth', 1.5);
     ylabel(['Phase (rad)']);
-elseif strcmp(p.Results.YUnits, 'pi')
-    plt = plot(X, Y/pi, 'LineWidth', 1.5);
+elseif strcmp(y_units, 'pi')
+    plt = plot(X/x_unit_factor, Y/pi, 'LineWidth', 1.5);
     ylabel(['Phase (rad/\pi)']);
 end
-axis([min(X) max(X) -inf inf])
-title('S-parameters')
 xlabel(['Frequency, f (', p.Results.XUnits ,')']);
 l = legend(legend_entries{:});
 l.Location = 'SouthEast';
+axis tight
 grid on
 end
 

@@ -16,9 +16,12 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function add_inductor(crt, name, L)
+function add_resistor(crt, name, R, varargin)
 
-crt.add(Inductor(...
+crt.add(Resistor(...
     'Name', name,...
-    'Inductance', L));
+    'Resistance', R,...
+    varargin{:}));
+
+end
 

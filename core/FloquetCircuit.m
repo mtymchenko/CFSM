@@ -34,7 +34,7 @@ classdef FloquetCircuit < FTCore
         compids_list = [];
         
         use_sparse_matrices = 0
-        warnings_off = 1
+        warnings_on = 0
     end % properties
     
     
@@ -49,31 +49,31 @@ classdef FloquetCircuit < FTCore
             fprintf(['     Version ',self.version,'\n'])
             self.comp = {}; % No components yet
             self.N_orders = 0;
-            self.freq_mod = 0;
+            self.freq_mod = 1e6;
             self.Z0 = 50;
             
             config
             self.use_sparse_matrices = USE_SPARSE_MATRICES;
-            self.warnings_off = WARNINGS_OFF;
+            self.warnings_on = WARNINGS_ON;
             
         end % fun
         
        
-        
         function add(self, varargin)
             % Adds a new component to the circuit and assigns a unique name
             %   self[class] = add(self[class], comp[class])
             %
             %   self[class] = add(self[class], comp[class], name[string])
             %
+
             if nargin==2
-                new_comp = varargin{1}; % new component 
+                new_comp = varargin{1};
                 if isempty(new_comp.name)
-                    new_comp.name = self.generate_name(new_comp.component_type);
+                    new_comp.name = self.generate_name(new_comp.type);
                 end
                 
             elseif nargin==3
-                new_comp = varargin{1}; % new component 
+                new_comp = varargin{1};
                 new_comp.name = varargin{2};
                     
             else
@@ -85,7 +85,7 @@ classdef FloquetCircuit < FTCore
             new_comp.N_orders = self.N_orders;
             
             if self.is_unique_name(new_comp.name)==0
-                if self.warnings_off==0
+                if self.warnings_on
                     disp(['WARNING: Component "',new_comp.name,'" already exists. Overwritten.'])
                 end
                 new_comp.id = self.get_compid_by_name(new_comp.name);
@@ -100,7 +100,7 @@ classdef FloquetCircuit < FTCore
             self.compnames_list = {self.compnames_list{:}, new_comp.name};
             self.compids_list = [self.compids_list, new_comp.id]; 
             
-            if strcmp(self.comp{new_comp.id}.component_type,'circuit')~=1
+            if strcmp(self.comp{new_comp.id}.type,'circuit')~=1
                 % if is not circuit, run update()
                 self.comp{new_comp.id}.update();
             end % if
@@ -128,7 +128,7 @@ classdef FloquetCircuit < FTCore
             subcrt = Subcircuit();
             if nargin==3
                 % subcrt(self, children, links)
-                subcrt.name = self.generate_name(subcrt.component_type);
+                subcrt.name = self.generate_name(subcrt.type);
                 subcrt.children = self.get_numeric_compids(varargin{1});
                 subcrt.links = varargin{2};
                 subcrt.N_orders_internal = self.N_orders;
@@ -339,7 +339,7 @@ classdef FloquetCircuit < FTCore
             % IMPORTANT: copy() function makes a deep copy of an object handle
             self.add(copy_name, copy(self.compid(name)));
             %     parent_copy_name
-            if strcmp(self.compid(copy_name).component_type, 'circuit')
+            if strcmp(self.compid(copy_name).type, 'circuit')
                 for ichild = 1:numel(self.compid(copy_name).children)
                     child_id = self.compid(copy_name).children(ichild);
                     child_name = self.compid(child_id).name;
@@ -355,10 +355,10 @@ classdef FloquetCircuit < FTCore
         
         
         
-        function out = generate_name(self, component_type)
+        function out = generate_name(self, type)
             % Generates a unique name for the component
             %
-            switch component_type
+            switch type
                 case 'capacitor',       prefix = 'CAP';
                 case 'inductor',        prefix = 'IND';
                 case 'resistor',        prefix = 'RES';
@@ -436,7 +436,7 @@ classdef FloquetCircuit < FTCore
             out = [];
             for compid = 1:numel(self.comp)
                 if self.compid_exists(compid)
-                    if strcmp(self.comp{compid}.component_type, 'circuit')==1
+                    if strcmp(self.comp{compid}.type, 'circuit')==1
                         if ismember(child_id, self.comp{compid}.children)                           
                              out = [out, compid];
                         end % if
@@ -652,7 +652,7 @@ classdef FloquetCircuit < FTCore
             cmp = self.compid(compid);
             if cmp.is_ready == 0
                 self.update_component(compid);
-                if strcmp(cmp.component_type,'circuit')
+                if strcmp(cmp.type,'circuit')
                     if ~isempty(cmp.children)
                         for ichild = 1:numel(cmp.children)
                             child_id = cmp.children(ichild);
@@ -856,7 +856,7 @@ classdef FloquetCircuit < FTCore
             cmp = self.compid(id);
             N = self.N_orders;
             M = numel([-N:N]);               
-            if strcmp(cmp.component_type,'circuit')~=1 || cmp.is_blackbox==1
+            if strcmp(cmp.type,'circuit')~=1 || cmp.is_blackbox==1
                 % If there are no children, just calculate the output
                 % spectrum using the S-matrix of component comp_id             
                 sparam_sweep = cmp.get_sparam();             

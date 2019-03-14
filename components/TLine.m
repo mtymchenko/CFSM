@@ -32,7 +32,7 @@ classdef TLine < FloquetCircuitComponent
         
         function self = TLine(varargin)
         % Class constructor
-            self.component_type = 'tline';
+            self.type = 'tline';
             self.N_ports = 2;
             self.Z = self.Z0;
             % Parsing input

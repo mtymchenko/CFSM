@@ -19,7 +19,7 @@
 classdef FloquetCircuitComponent < FTCore & matlab.mixin.Copyable
     
     properties
-        component_type
+        type
         id % [int] unique component id in the circuit
         is_ready % 0 (default) or 1
         Z0 % reference impedance

@@ -28,7 +28,7 @@ classdef Resistor < FloquetCircuitComponent
         
         function self = Resistor(varargin)
         % Constructor function    
-            self.component_type = 'resistor';
+            self.type = 'resistor';
             self.N_ports = 2;
             
             % Parsing input

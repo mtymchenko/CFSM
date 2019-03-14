@@ -16,10 +16,12 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-function add_phaseshifter(crt, name, phi21, phi12)
+function add_joint(crt, name, N_ports,varargin)
 
-crt.add(PhaseShifter(...
+crt.add(Joint(...
     'Name', name,...
-    'Phi21', phi21,...
-    'Phi12', phi12));
+    'NumPorts', N_ports,...
+    varargin{:}));
+
+end
 

@@ -45,13 +45,6 @@ classdef FTCore < handle
         end % fun
         
         
-        function out = compute_FT(self, X)
-        % Returns Fourier coeffs of fun(t) for n = [-N..N]
-        %
-            out = fft(X)/length(X);
-        end % fun
-        
-        
 %         function out = compute_IFT(self, fn, t)
 %         % Returns fun(t), t=0..T using its spectrum
 %         %            
@@ -81,6 +74,17 @@ classdef FTCore < handle
         end % fun
         
     end % methods
+    
+    
+    methods (Static)
+        
+        function out = compute_FT(X)
+        % Returns Fourier coeffs of fun(t) for n = [-N..N]
+        %
+            out = fft(X)/length(X);
+        end % fun
+        
+    end
     
 end % classdef
 

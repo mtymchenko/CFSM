@@ -1,27 +1,28 @@
 
 
 clear
-locale
-SI_system
+SI_units
 
 
-C = 25*pF;    % max capacitance
+C = 50*pF;
+N_paths = 4;
 
 
 crt = FloquetCircuit();
-crt.freq = linspace(0.001,4,80)*GHz;
+crt.freq = linspace(0.001,4,200)*GHz;
 crt.freq_mod = 1*GHz;
-crt.N_orders = 32;
+crt.N_orders = 16;
 
-add_Npath_filter(crt,'NPFILTER', C, 4, 0);
+
+add_Npath_filter(crt,'NPFILTER', C, N_paths, 1/N_paths);
 
 
 crt.analyze();
 
 %%
 figure
-plot_sparam_mag_db(crt, 'NPFILTER');
-axis([0 4 -80 0])
+subplot(2,1,1)
+plot_sparam_mag(crt, 'NPFILTER', 'XUnits','GHz', 'YUnits','dB');
 
-figure
-plot_sparam_phase(crt, 'NPFILTER');
+subplot(2,1,2)
+plot_sparam_phase(crt, 'NPFILTER', 'XUnits','GHz', 'YUnits', 'deg');

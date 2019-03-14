@@ -26,7 +26,7 @@ classdef Joint < FloquetCircuitComponent
         
         function self = Joint(varargin)
         % Constructor function 
-            self.component_type = 'joint';
+            self.type = 'joint';
             % Parsing input
             if (~isempty(varargin))
                 for arg = 1:nargin

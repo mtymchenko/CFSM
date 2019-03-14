@@ -31,7 +31,7 @@ classdef PhaseShifter < FloquetCircuitComponent
         
         function self = PhaseShifter(varargin)
         % Constructor function    
-            self.component_type = 'phaseshifter';
+            self.type = 'phaseshifter';
             self.N_ports = 2;
             % Parsing input    
             if (~isempty(varargin))
