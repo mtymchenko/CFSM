@@ -13,7 +13,28 @@
 %
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+%
+%
+% **********************************************************************
+% Plots capacitance of the element as a function of time
+%
+%   Args:
+%       crt [handle] (required) - circuit handle
+%
+%       id [string] (required) -  name of the element the inductance of
+%       	which to plot
+%
+%       time [array] (optional) - time over which to plot L(t). Default 
+%       	is one period
+%
+%   Params:
+%
+%       'XUnits': 'as'|'fs'|'ps'|'ns'|'us'|'ms'|'s' (default) 
+%
+%       'YUnits': 'aF'|'fF'|'pF'(default)|'nF'|'uF'|'mF'|'F'
+%
+%       'Mode': 'complex' (default)|'Re'|'Im'
+%
 
 function plot_capacitance(crt, id, varargin)
 % Plots capacitance of the element <id>
@@ -50,16 +71,17 @@ x_unit_factor = get_unit_factor(x_units);
 y_unit_factor = get_unit_factor(y_units);
 
 C = cmp.get_capacitance(t);
+
 X = t;
 Y = [];
 legend_entries = {};
 if strcmp(mode,'Re') || strcmp(mode,'complex')
     Y = [Y; real(C)];
-    legend_entries = {legend_entries{:}, 'Re'};
+    legend_entries = [legend_entries(:), {'Re'}];
 end
 if strcmp(mode,'Im') || strcmp(mode,'complex')
     Y = [Y; imag(C)];
-    legend_entries = {legend_entries{:}, 'Im'};
+    legend_entries = [legend_entries(:), {'Im'}];
 end
 
 plot(X/x_unit_factor, Y/y_unit_factor,'LineWidth',1.5);

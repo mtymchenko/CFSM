@@ -1,6 +1,6 @@
 % Composite Floquet Scattering Matrix (CFSM) Circuit Simulator 
 % 
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -30,25 +30,22 @@ classdef PhaseShifter < FloquetCircuitComponent
     methods
         
         function self = PhaseShifter(varargin)
-        % Constructor function    
-            self.type = 'phaseshifter';
+            % Constructor function    
+        
+            p = inputParser;
+            addRequired(p, 'Name', @(x) ischar(x) );
+            addRequired(p, 'Phi21', @(x) isa(x,'function_handle'));
+            addRequired(p, 'Phi12', @(x) isa(x,'function_handle'));
+            addOptional(p, 'Description', '', @(x) ischar(x));
+            parse(p, varargin{:})
+            
+            self.type = 'tline';
             self.N_ports = 2;
-            % Parsing input    
-            if (~isempty(varargin))
-                for arg = 1:nargin
-                    if ischar(varargin{arg})
-                        if strcmp(varargin{arg}, 'Name')
-                        	self.name = varargin{arg+1};
-                        elseif strcmp(varargin{arg}, 'Phi21')
-                                self.phi21_handle = varargin{arg+1};
-                        elseif strcmp(varargin{arg}, 'Phi12')
-                                self.phi12_handle = varargin{arg+1};
-                        elseif strcmp(varargin{arg}, 'Description')
-                                self.description = varargin{arg+1};
-                        end % if
-                    end % if
-                end % for
-            end % if
+            self.name = p.Results.Name;
+            self.phi21_handle = p.Results.Phi21;
+            self.phi12_handle = p.Results.Phi12;
+            self.description = p.Results.Description;
+  
         end % fun 
 
           
@@ -107,36 +104,7 @@ classdef PhaseShifter < FloquetCircuitComponent
                 cat(2,self.get_S11_sweep(),self.get_S12_sweep()),...
                 cat(2,self.get_S21_sweep(),self.get_S22_sweep));
         end % fun
-        
-        
-        function out = get_S11_sweep(self)
-            if (isempty(self.S11_sweep)==1 || size(self.S11_sweep)~=self.empty_sweep_size)
-                self.compute_S11_sweep();
-            end % end
-            out = self.S11_sweep;
-        end % fun
-        
-        function out = get_S12_sweep(self)
-            if (isempty(self.S12_sweep)==1 || size(self.S12_sweep)~=self.empty_sweep_size)
-                self.compute_S12_sweep();
-            end % end
-            out = self.S12_sweep;
-        end % fun
-        
-        function out = get_S21_sweep(self)
-            if (isempty(self.S21_sweep)==1 || size(self.S21_sweep)~=self.empty_sweep_size)
-                self.compute_S21_sweep();
-            end % end
-            out = self.S21_sweep;
-        end % fun
-        
-        function out = get_S22_sweep(self)
-            if (isempty(self.S22_sweep)==1 || size(self.S22_sweep)~=self.empty_sweep_size)
-                self.compute_S22_sweep();
-            end % end
-            out = self.S22_sweep;
-        end % fun
-        
+                
         
         function compute_sparam_sweep(self)
             self.compute_S11_sweep();

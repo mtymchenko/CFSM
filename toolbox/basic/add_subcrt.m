@@ -15,13 +15,19 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% **********************************************************************
+% Adds a new subcircuit
+%
 
-function add_LC_bandpass_filter(crt, name, L, C)
+function add_subcrt(crt, name, children, links, varargin)
 
-add_inductor(crt, ['IND_',name],L/2);
-add_capacitor(crt, ['CAP_',name], C);
-add_joint(crt, ['JNT3_',name], 3);
-add_ground(crt, ['GRND_',name]);
+if isobject(crt)
+    crt.add(Subcircuit(name, children, links, varargin{:}));
+else
+    error('"crt" must be a handle to a FloquetCircuit object')
+end
 
-make_shunt_T(crt, ['SHUNT_CAP_',name], {['CAP_',name]});
-connect_in_series(crt,name, {['IND_',name], ['SHUNT_CAP_',name], ['IND_',name]})
+end
+

@@ -15,14 +15,30 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% **********************************************************************
+% Adds a phase-shifter to the circuit
+%
+%   Args:
+%       crt [handle] (required) - circuit handle
+%
+%       name [string] (required) -  name of the capacitor
+%
+%       phi21_handle [handle] (required) - handle of phi21 function vs
+%           frequency
+%
+%       phi12_handle [handle] (required) - handle of phi12 function vs
+%           frequency
+%
 
-function add_phaseshifter(crt, name, phi21, phi12, varargin)
+function add_phaseshifter(crt, name, phi21_handle, phi12_handle, varargin)
 
-crt.add(PhaseShifter(...
-    'Name', name,...
-    'Phi21', phi21,...
-    'Phi12', phi12,...
-    varargin{:}));
+if isobject(crt)
+    crt.add(PhaseShifter(name, phi21_handle, phi12_handle, varargin{:}));
+else
+    error('"crt" must be a handle to FloquetCircuit object')
+end
 
 end
 

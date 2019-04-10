@@ -15,13 +15,24 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% **********************************************************************
+% Adds an inductor to the circuit
+%
+%   Args:
+%       crt [handle] (required) - circuit handle
+%
+%       name [string] (required) -  name of the inductor
+%
 
 function add_inductor(crt, name, L, varargin)
 
-crt.add(Inductor(...
-    'Name', name,...
-    'Inductance', L,...
-    varargin{:}));
+if isobject(crt)
+    crt.add(Inductor(name, L, varargin{:}));
+else
+    error('"crt" must be a handle to a FloquetCircuit object')
+end
 
 end
 

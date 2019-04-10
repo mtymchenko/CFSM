@@ -18,27 +18,31 @@
 %
 %
 % **********************************************************************
-% Adds a transmission line section to the circuit
+% Adds a symmetric LC bandpath filter
+%
+%           o--[L/2]--.--[L/2]--o
+%           1         |         2
+%                    [C]
+%                     |
+%                   GROUND 
+%                     
 %
 %   Args:
 %       crt [handle] (required) - circuit handle
 %
-%       name [string] (required) -  name of the TL
+%       name [string] (required) -  name of the filter
 %
-%       length [double] (required) - TL length
+%       L [double, array] (required) - inductance L(t)
 %
-%       vp_handle [handle] (required) - handle of phase velocity vs
-%           frequency
-%
-%       Z [double] (required) - TL characteristic impedance
+%       C [double, array] (required) - capacitance C(t)
 %
 
-function add_tline(crt, name, length, vp_handle, Z, varargin)
+function add_symmetric_LC_bandpass_filter(crt, name, L, C)
 
-if isobject(crt)
-    crt.add(TLine(name, length, vp_handle, Z, varargin{:}));
-else
-    error('"crt" must be a handle to FloquetCircuit object')
-end
+add_inductor(crt, ['IND_',name],L/2);
+add_capacitor(crt, ['CAP_',name], C);
+add_joint(crt, ['JNT3_',name], 3);
+add_ground(crt, ['GRND_',name]);
 
-end
+make_shunt_T(crt, ['SHUNT_CAP_',name], {['CAP_',name]});
+connect_in_series(crt,name, {['IND_',name], ['SHUNT_CAP_',name], ['IND_',name]})

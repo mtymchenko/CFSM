@@ -15,13 +15,24 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% **********************************************************************
+% Adds a 2-port pin to the circuit
+%
+%   Args:
+%       crt [handle] (required) - circuit handle
+%
+%       name [string] (required) -  name of the pin
+%
 
 function add_pin(crt, name, varargin)
 
-crt.add(Joint(...
-    'Name', name,...
-    'NumPorts', 2,...
-    varargin{:}))
+if isobject(crt)
+    crt.add(Joint(name, 2, varargin{:}));
+else
+    error('"crt" must be a handle to FloquetCircuit object')
+end
 
 end
 

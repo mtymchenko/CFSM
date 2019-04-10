@@ -1,7 +1,6 @@
 
 
 clear
-config
 SI_units
 
 % Creating circuit and setting params
@@ -20,6 +19,8 @@ add_inductor(crt, 'IND2', 16.853*nH);
 make_shunt_T(crt, 'SHUNT_CAP', {'CAP'});
 
 connect_in_series(crt, 'CHEBFILTER', {'IND1','SHUNT_CAP','IND2','SHUNT_CAP','IND1'})
+
+
 
 
 crt.analyze();

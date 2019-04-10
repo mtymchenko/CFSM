@@ -1,6 +1,6 @@
 % Composite Floquet Scattering Matrix (CFSM) Circuit Simulator 
 % 
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -31,29 +31,24 @@ classdef TLine < FloquetCircuitComponent
         
         
         function self = TLine(varargin)
-        % Class constructor
+            % Class constructor
+        
+            p = inputParser;
+            addRequired(p, 'Name', @(x) ischar(x) );
+            addRequired(p, 'Length', @(x) isnumeric(x) );
+            addRequired(p, 'PhaseVelocityHandle', @(x) isa(x,'function_handle'));
+            addRequired(p, 'CharacteristicImpedance', @(x) isnumeric(x));
+            addOptional(p, 'Description', '', @(x) ischar(x));
+            parse(p, varargin{:})
+            
             self.type = 'tline';
             self.N_ports = 2;
-            self.Z = self.Z0;
-            % Parsing input
-            if (~isempty(varargin))
-                for iarg = 1:nargin
-                    if ischar(varargin{iarg})
-                        switch varargin{iarg}
-                            case 'Name'
-                                self.name = varargin{iarg+1};
-                            case 'Length'
-                                self.length = varargin{iarg+1};
-                            case 'PhaseVelocityHandle'
-                                self.vp_handle = varargin{iarg+1};
-                            case 'Description'
-                                self.description = varargin{iarg+1};
-                            case 'CharacteristicImpedance'
-                                self.Z = varargin{iarg+1};
-                        end % switch
-                    end % if
-                end % for
-            end % if
+            self.name = p.Results.Name;
+            self.length = p.Results.Length;
+            self.vp_handle = p.Results.PhaseVelocityHandle;
+            self.Z = p.Results.CharacteristicImpedance;
+            self.description = p.Results.Description;
+
         end % fun
         
         

@@ -1,6 +1,6 @@
 % Composite Floquet Scattering Matrix (CFSM) Circuit Simulator 
 % 
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -25,22 +25,19 @@ classdef Joint < FloquetCircuitComponent
     methods
         
         function self = Joint(varargin)
-        % Constructor function 
+            % Constructor function 
+        
+            p = inputParser;
+            addRequired(p, 'Name', @(x) ischar(x) );
+            addRequired(p, 'NumPorts', @(x) isnumeric(x) );
+            addOptional(p, 'Description', '', @(x) ischar(x));
+            parse(p, varargin{:})
+            
             self.type = 'joint';
-            % Parsing input
-            if (~isempty(varargin))
-                for arg = 1:nargin
-                    if ischar(varargin{arg})
-                        if strcmp(varargin{arg}, 'Name')
-                        	self.name = varargin{arg+1};
-                        elseif strcmp(varargin{arg}, 'NumPorts')
-                        	self.N_ports = varargin{arg+1};
-                        elseif strcmp(varargin{arg}, 'Description')
-                        	self.description = varargin{arg+1};
-                        end % if
-                    end % if
-                end % for
-            end % if
+            self.name = p.Results.Name;
+            self.N_ports = p.Results.NumPorts;
+            self.description = p.Results.Description;
+            
         end % fun
         
         

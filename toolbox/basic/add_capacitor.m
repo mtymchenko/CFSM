@@ -15,13 +15,24 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% **********************************************************************
+% Adds a capacitor to the circuit
+%
+%   Args:
+%       crt [handle] (required) - circuit handle
+%
+%       name [string] (required) -  name of the capacitor
+%
 
 function add_capacitor(crt, name, C, varargin)
 
-crt.add( Capacitor(...
-    'Name', name,...
-    'Capacitance', C,...
-    varargin{:}));
+if isobject(crt)
+    crt.add(Capacitor(name, C, varargin{:}));
+else
+    error('"crt" must be a handle to a FloquetCircuit object')
+end
 
 end
 

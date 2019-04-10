@@ -15,13 +15,26 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% **********************************************************************
+% Adds a N-port joint to the circuit
+%
+%   Args:
+%       crt [handle] (required) - circuit handle
+%
+%       name [string] (required) -  name of the joint element
+%
+%       N_ports [int] (required) - number of ports
+%
 
-function add_joint(crt, name, N_ports,varargin)
+function add_joint(crt, name, N_ports, varargin)
 
-crt.add(Joint(...
-    'Name', name,...
-    'NumPorts', N_ports,...
-    varargin{:}));
+if isobject(crt)
+    crt.add(Joint(name, N_ports, varargin{:}));
+else
+    error('"crt" must be a handle to FloquetCircuit object')
+end
 
 end
 

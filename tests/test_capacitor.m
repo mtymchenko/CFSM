@@ -18,8 +18,10 @@ add_capacitor(crt, 'CAP', C_min + (C_max-C_min)*rectangularPulse(0,0.5,crt.freq_
 
 crt.analyze();
 
+
+%%
 figure
-plot_capacitance(crt, 'CAP', 'XUnits', 'ns', 'Mode', 'complex');
+plot_capacitance(crt, 'CAP', 'XUnits', 'ns', 'Mode', 'Re');
 
 figure
 subplot(2,1,1)

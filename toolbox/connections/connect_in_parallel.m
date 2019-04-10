@@ -45,50 +45,6 @@
 %
 % ***********************************************************************
 
-% function connect_in_parallel(crt, name, compids)
-% 
-% N_comps = numel(compids);
-% 
-% if N_comps>2
-%     
-%     if mod(N_comps,2)==0
-%         branch_names = {};
-%         i_branch = 1;
-%         for i_comp = 1:2:N_comps
-%             branch_names{i_branch} = [name,'_PATHS',num2str(i_comp),'-',num2str(i_comp+1)];
-%             connect_in_parallel(crt, branch_names{i_branch}, {compids{i_comp}, compids{i_comp+1}});
-%             i_branch = i_branch +1;
-%         end
-%         compids.'
-%         branch_names.'
-%         [name,'_PATHS1-',num2str(N_comps)]
-%         connect_in_parallel(crt, [name,'_PATHS1-',num2str(N_comps)], branch_names);
-%         
-%     elseif mod(N_comps,2)==1
-% 
-%         branch_names = {};
-%         i_branch = 1;
-%         for i_comp = 1:2:N_comps-1
-%             branch_names{i_branch} = [name,'_PATHS',num2str(i_comp),'-',num2str(i_comp+1)];
-%             connect_in_parallel(crt, branch_names{i_branch}, {compids{i_comp}, compids{i_comp+1}});
-%             i_branch = i_branch +1;
-%         end
-%         connect_in_parallel(crt, [name,'_PATHS1-',num2str(N_comps)], {branch_names{:}, compids{end}});
-%     end
-% 
-% elseif N_comps==2
-%     
-%     add_pin(crt, [name,'_PIN1'])
-%     add_pin(crt, [name,'_PIN2'])
-% 
-%     links{1} = [2,3,5];
-%     links{2} = [4,6,7];
-%     
-%     connect_by_ports(crt, name, {[name,'_PIN1'], compids{:}, [name,'_PIN2']}, links);
-% 
-% else
-%     error('Connecting only 1 element')
-% end
 
 function connect_in_parallel(varargin)
 

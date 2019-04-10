@@ -1,6 +1,6 @@
 % Composite Floquet Scattering Matrix (CFSM) Circuit Simulator 
 % 
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -33,14 +33,14 @@ classdef Subcircuit < FloquetCircuitComponent
         links
         solver_mode
         
-        all_Fports_as_matrix    % [array] all Floquet ports' indexes. 
-                                % Each column is for one physical port
-        
-        inner_Fports_as_matrix  % [array] internal Floquet ports' indexes
-                                % Each column is for one physical port
-                               
-        outer_Fports_as_matrix  % [array] external Floquet ports' indexes. 
-                                % Each column is for one physical port 
+%         all_Fports_as_matrix    % [array] all Floquet ports' indexes. 
+%                                 % Each column is for one physical port
+%         
+%         inner_Fports_as_matrix  % [array] internal Floquet ports' indexes
+%                                 % Each column is for one physical port
+%                                
+%         outer_Fports_as_matrix  % [array] external Floquet ports' indexes. 
+%                                 % Each column is for one physical port 
                                 
                                 
     end % properties
@@ -49,34 +49,23 @@ classdef Subcircuit < FloquetCircuitComponent
         
         function self = Subcircuit(varargin)
         % Constructor function
+        
+            p = inputParser;
+            addRequired(p, 'Name', @(x) ischar(x) );
+            addRequired(p, 'Children', @(x) iscellstr(x));
+            addRequired(p, 'Links', @(x) iscell(x));
+            addOptional(p, 'Description', '', @(x) ischar(x));
+            addOptional(p, 'IsBlackBox', 1, @(x) isnumeric(x) && ismember(x, [0,1]));
+            parse(p, varargin{:})
+        
             self.type = 'circuit';
             self.solver_mode = 0;
-            self.is_blackbox = 1;
-            % Parsing input
-            if (~isempty(varargin))
-                for arg = 1:nargin
-                    if ischar(varargin{arg})
-                        value = varargin{arg+1};
-                        if strcmp(varargin{arg}, 'Name')
-                        	self.name = value;
-                        elseif strcmp(varargin{arg}, 'ReferenceImpedance')
-                        	self.Z0 = value;
-                        elseif strcmp(varargin{arg}, 'Children')
-                            self.children = value;
-                        elseif strcmp(varargin{arg}, 'Links')
-                            self.links = value;
-                        elseif strcmp(varargin{arg}, 'Description')
-                            self.description = value;
-                        elseif strcmp(varargin{arg}, 'IsBlackbox')
-                            if (value==0 || value==1)
-                                self.is_blackbox = value;
-                            else
-                                error('Invalid "is_blackbox" value. Can be only 0 or 1')
-                            end % if
-                        end % if
-                    end % if
-                end % for
-            end % if
+            self.name = p.Results.Name;
+            self.children = p.Results.Children;
+            self.links = p.Results.Links;
+            self.description = p.Results.Description;
+            self.is_blackbox = p.Results.IsBlackBox;
+
         end % fun
         
                

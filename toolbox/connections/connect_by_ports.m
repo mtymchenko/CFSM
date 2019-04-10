@@ -61,21 +61,9 @@
 %
 % ***********************************************************************
 
-function connect_by_ports(varargin)
+function connect_by_ports(crt, name, children, links, varargin)
 
-crt = varargin{1};
-name = varargin{2};
-children = varargin{3};
-links = varargin{4};
-
-switch nargin
-    case 4
-        crt.subcrt(name, children, links); % links between ports
-    case 5
-        crt.subcrt(name, children, links, varargin{5});
-    otherwise
-        error('Wrong number of input arguments');
-end % switch
+add_subcrt(crt, name, children, links, varargin{:});
 
 end % fun
 

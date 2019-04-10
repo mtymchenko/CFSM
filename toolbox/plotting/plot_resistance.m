@@ -13,7 +13,28 @@
 %
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+%
+%
+% **********************************************************************
+% Plots resistance of the element as a function of time
+%
+%   Args:
+%       crt [handle] (required) - circuit handle
+%
+%       id [string] (required) -  name of the element the inductance of
+%       	which to plot
+%
+%       time [array] (optional) - time over which to plot L(t). Default 
+%       	is one period
+%
+%   Params:
+%
+%       'XUnits': 'as'|'fs'|'ps'|'ns'|'us'|'ms'|'s' (default) 
+%
+%       'YUnits': 'aOhm'|'fOhm'|'pOhm'|'nOhm'|'uOhm'|'mOhm'|'Ohm' (default)|'kOhm'|'MOhm'|'GOhm'|'TOhm'
+%
+%       'Mode': 'complex' (default)|'Re'|'Im'
+%
 
 function plot_resistance(crt, id, varargin)
 % Plots resistance of the element <id>
@@ -56,11 +77,11 @@ Y = [];
 legend_entries = {};
 if strcmp(mode,'Re') || strcmp(mode,'complex')
     Y = [Y; real(R)];
-    legend_entries = {legend_entries{:}, 'Re'};
+    legend_entries = [legend_entries(:), {'Re'}];
 end
 if strcmp(mode,'Im') || strcmp(mode,'complex')
     Y = [Y; imag(R)];
-    legend_entries = {legend_entries{:}, 'Im'};
+    legend_entries = [legend_entries(:), {'Im'}];
 end
 
 plot(X/x_unit_factor, Y/y_unit_factor,'LineWidth',1.5);

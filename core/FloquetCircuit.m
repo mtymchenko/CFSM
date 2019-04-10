@@ -1,6 +1,6 @@
 % Composite Floquet Scattering Matrix (CFSM) Circuit Simulator
 %
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 %
 % This program is free software: you can redistribute it and/or modify
@@ -59,123 +59,40 @@ classdef FloquetCircuit < FTCore
         end % fun
         
        
-        function add(self, varargin)
-            % Adds a new component to the circuit and assigns a unique name
-            %   self[class] = add(self[class], comp[class])
-            %
-            %   self[class] = add(self[class], comp[class], name[string])
-            %
-
-            if nargin==2
-                new_comp = varargin{1};
-                if isempty(new_comp.name)
-                    new_comp.name = self.generate_name(new_comp.type);
-                end
-                
-            elseif nargin==3
-                new_comp = varargin{1};
-                new_comp.name = varargin{2};
-                    
-            else
-                error('Wrong number of input parameters');
-            end % if
-            
-            new_comp.freq = self.freq;
-            new_comp.omega = 2*pi*self.freq;
-            new_comp.N_orders = self.N_orders;
-            
-            if self.is_unique_name(new_comp.name)==0
-                if self.warnings_on
-                    disp(['WARNING: Component "',new_comp.name,'" already exists. Overwritten.'])
-                end
-                new_comp.id = self.get_compid_by_name(new_comp.name);
-            else
-                new_comp.id = numel(self.comp)+1;
+        function add(self, comp)
+                       
+            if ~isobject(comp)
+                error('"comp" must be an object')
             end
+            
+            if ~self.is_unique_name(comp.name)
+                if self.warnings_on
+                    disp(['WARNING: Component "',comp.name,'" already exists. Overwritten.'])
+                end
+                comp.id = self.get_compid_by_name(comp.name);
+            else
+                comp.id = numel(self.comp)+1;
+                self.compnames_list = [self.compnames_list(:)', {comp.name}];
+                self.compids_list = [self.compids_list, comp.id];
+            end
+            
+            comp.freq = self.freq;
+            comp.omega = 2*pi*self.freq;
+            comp.N_orders = self.N_orders;
             
             % Adding new component to the circuit
-            self.comp{new_comp.id} = new_comp;
+            self.comp{comp.id} = comp; 
             
-            % Adding component name and id to the corresponding lists
-            self.compnames_list = {self.compnames_list{:}, new_comp.name};
-            self.compids_list = [self.compids_list, new_comp.id]; 
-            
-            if strcmp(self.comp{new_comp.id}.type,'circuit')~=1
+            if strcmp(self.comp{comp.id}.type,'circuit')~=1
                 % if is not circuit, run update()
-                self.comp{new_comp.id}.update();
+                self.comp{comp.id}.update();
+            else
+                
+                self.sort_ports(comp.name);
             end % if
 
         end % fun
-        
-        
-        
-        
-        
-        function subcrt(self, varargin)
-            % Creates a new subcircuit component and assigns links among its children
-            %
-            %       subcrt(self, children, links)
-            %           self[obj]
-            %           children[cell of [string]] - circuits comprising this subcircuit
-            %           links[array] - array of links like [to_port2, from_port1; to_port3, from_port4]
-            %
-            %       subcrt(self, name, children, links)
-            %           self[obj]
-            %           name[string] - name of a subcircuit
-            %           children[cell of [string]] - circuits comprising this subcircuit
-            %           links[array] - array of links like [to_port2, from_port1; to_port3, from_port4]
-            %
-            subcrt = Subcircuit();
-            if nargin==3
-                % subcrt(self, children, links)
-                subcrt.name = self.generate_name(subcrt.type);
-                subcrt.children = self.get_numeric_compids(varargin{1});
-                subcrt.links = varargin{2};
-                subcrt.N_orders_internal = self.N_orders;
-            elseif nargin==4
-                % subcrt(self, name, children, links)
-                subcrt.name = varargin{1};
-                subcrt.children = self.get_numeric_compids(varargin{2});
-                subcrt.links = varargin{3};
-            else
-                error('Wrong number of input arguments');
-            end
-            subcrt.N_orders = self.N_orders;
-            self.add(subcrt);
-            self.sort_ports(subcrt.name);
-        end % fun
-        
-        
-        
-        
-%         function out = sparam(varargin)
-%             self = varargin{1};
-%             switch nargin
-%                 case 1
-%                     comp_id = numel{self.comp}; % choose last one
-%                     out = self.comp{comp_id}.sparam_concat();
-%                     
-%                 case 2
-%                     comp_id = self.get_compid_by_name(varargin{2});
-%                     out = self.comp{comp_id}.sparam_concat();
-%                     
-%                 case 4
-%                     comp_id = self.get_compid_by_name(varargin{2});
-%                     port_to = varargin{3};
-%                     port_from = varargin{4};
-%                     
-%                     sparam_sweep = self.comp{comp_id}.sparam;
-%                     M = 2*self.N_orders + 1;
-%                     N_ports = size(sparam_sweep,1)/M;
-%                     if (port_to>N_ports || port_from > N_ports)
-%                         error(['Component has only ',num2str(N_ports),' ports']);
-%                     end
-%                     out = sparam_sweep((port_to-1)*M+[1:M],(port_from-1)*M+[1:M],:);
-%                     
-%             end
-%         end
-        
-        
+
         
         
         function out = compid(self, querry_id)
@@ -222,27 +139,7 @@ classdef FloquetCircuit < FTCore
             end % for
 
         end % fun
-        
-        
-        
-%         function remove(self, comp_id)
-%         % Removes component 'compid'
-%             if isnumeric(comp_id)
-%                 id = comp_id;
-%             else
-%                 id = [];
-%                 try
-%                     id = self.get_compid_by_name(comp_id);
-%                 catch
-%                     warning('There is no component to remove')
-%                 end
-%             end
-%             
-%             if isempty(id)==0
-%                 id
-%                 self.comp{id} = [];
-%             end
-            
+                 
         
         
         function analyze(self)
@@ -382,22 +279,17 @@ classdef FloquetCircuit < FTCore
         end % fun
         
         
-        function out = is_unique_name(self, querry_name)
-            % Verifies where the component name is unique
-            %
-            out = 1; % First, assume the name is unique
-            if numel(self.comp)>0
-                % check if there is at least one component
-                for icomp = 1:numel(self.comp)
-                    if isempty(self.comp{icomp})~=1
-                        % check if component with this id=icomp exists
-                        if strcmp(self.comp{icomp}.name, querry_name)==1
-                            % if match found? -> name is not unique
-                            out = 0;
-                        end % if
-                    end % if
-                end % for
-            end % if
+        function out = is_unique_name(self, name)
+            
+            if ischar(name)
+                if numel(self.compnames_list)~=0 && ismember(name, self.compnames_list)
+                    out = 0;
+                else
+                    out = 1;
+                end
+            else
+                error('Variable "name" is not a string')
+            end
         end % fun
         
         
@@ -493,9 +385,6 @@ classdef FloquetCircuit < FTCore
             cmp.T_mod  = 1/self.freq_mod;
             cmp.N_orders = self.N_orders;
             cmp.Z0 = self.Z0;
-            cmp.ports = [1:cmp.N_ports];
-            cmp.N_Fports = (2*cmp.N_orders+1)*cmp.N_ports;
-            cmp.Fports = [1:cmp.N_Fports];
         end         
         
         
@@ -670,45 +559,63 @@ classdef FloquetCircuit < FTCore
         end % fun
         
         
-        function sort_ports(self, compid)
+        function sort_ports(self, id)
             % Using the total number of physical ports, defines the total
             % number of FLoquet ports and splits them into inner and outer
             % port subsets
             %
-            N = self.N_orders;
-            M = 2*N+1;
-            cmp = self.compid(compid); % Reference to a handle object
             
-            cmp.N_all_ports = 0;
-            cmp.N_all_Fports = 0;
-            for child = cmp.children
-                cmp.N_all_ports = cmp.N_all_ports + self.compid(child).N_ports;
-            end % for
-            cmp.all_ports = [1:cmp.N_all_ports];
-            % Finding input ports
-            cmp.inner_ports = [];
-            for i_link = 1:numel(cmp.links)
-                link_ports = cmp.links{i_link};
-                cmp.inner_ports = unique([cmp.inner_ports, link_ports]);
+            if self.is_circuit(id)
+            
+                N = self.N_orders;
+                M = 2*N+1;
+                cmp = self.compid(id); % Reference to a handle object
+
+                cmp.N_all_ports = 0;
+                cmp.N_all_Fports = 0;
+                
+                for child = cmp.children
+                    cmp.N_all_ports = cmp.N_all_ports + self.compid(child).N_ports;
+                end % for
+                cmp.N_all_Fports = cmp.N_all_ports*M;
+                
+                cmp.all_ports = [1:cmp.N_all_ports];
+                cmp.all_Fports = reshape([1:cmp.N_all_Fports], M, cmp.N_all_ports);
+                
+                % Finding input ports
+                cmp.inner_ports = [];
+                for i_link = 1:numel(cmp.links)
+                    link_ports = cmp.links{i_link};
+                    cmp.inner_ports = unique([cmp.inner_ports, link_ports]);
+                end
+                
+                % Removing 0 (if it is there) from the list of inner ports, 
+                % because it is reserved for the ground
+                if ismember(0, cmp.inner_ports)
+                    cmp.inner_ports = setxor(cmp.inner_ports, 0);
+                end
+                
+                % All other ports are outer
+                cmp.outer_ports = setxor(cmp.all_ports, cmp.inner_ports);
+                cmp.N_ports = numel(cmp.outer_ports);
+                cmp.ports = [1:cmp.N_ports];
+                
+                cmp.inner_Fports = cmp.all_Fports(:, cmp.inner_ports);
+                cmp.outer_Fports = cmp.all_Fports(:,cmp.outer_ports);
+                cmp.N_Fports = numel(cmp.outer_Fports);               
+                cmp.Fports = reshape([1:cmp.N_Fports], M, cmp.N_ports);
             end
-            % Removing 0 (if it is there) from the list of inner ports, 
-            % because it is reserved for the ground
-            if ismember(0, cmp.inner_ports)
-                cmp.inner_ports = setxor(cmp.inner_ports, 0);
-            end
-            % All other ports are outer
-            cmp.outer_ports = setxor(cmp.all_ports, cmp.inner_ports);
-            cmp.N_ports = numel(cmp.outer_ports);
-            cmp.ports = [1:cmp.N_ports];
-            % Setting unique numbers to all Floquet ports as a vector
-            % Each column is a physical port
-            cmp.all_Fports = reshape([1:M*cmp.N_all_ports], M, cmp.N_all_ports);
-            % Choosing columns corresponding to inner physical ports
-            cmp.inner_Fports = cmp.all_Fports(1:M, cmp.inner_ports);
-            % Choosing columns corresponding to outer physical ports
-            cmp.outer_Fports = cmp.all_Fports(:,cmp.outer_ports);
-            cmp.N_Fports = numel(cmp.outer_Fports);
+            
         end % fun
+        
+        
+        function out = is_circuit(self, id)
+            if strcmp(self.compid(id).type,'circuit')
+                out = 1;
+            else
+                out = 1;
+            end
+        end
         
         
         function set_children_spectra(self, compid, children_input_spectrum, children_output_spectrum)
@@ -733,6 +640,7 @@ classdef FloquetCircuit < FTCore
         % Computes CFSM frequency sweep using FSMs of children
         %
             cmp = self.compid(compid); % handle to 'compid' object
+            
             if numel(cmp.children)==1 && isempty(cmp.links)
                 % If there is only one child, there is nothing to connect,
                 % so, just using its S-params
@@ -741,13 +649,15 @@ classdef FloquetCircuit < FTCore
                 % Preparing empty cell arrays to store children S-params
                 children_sparam = cell(numel(cmp.children),1);           
                 % Loading all children S-param sweeps
-                children_sparam_sweep = self.get_multiple_sparam_sweeps(cmp.children);          
+                children_sparam_sweep = self.get_multiple_sparam_sweeps(cmp.children);              
+                
                 % Interconnection matrix
                 FF = self.construct_interconnection_matrix(compid);             
                 % Pre-allocating the space for CFSM
                 cmp.sparam_sweep = zeros(numel(cmp.outer_Fports), numel(cmp.outer_Fports), numel(self.freq));       
                 for ifreq = 1:numel(self.freq)             
                     for ichild = 1:numel(cmp.children)
+                        
                         if size(children_sparam_sweep{ichild},3) == 1
                             children_sparam{ichild} = children_sparam_sweep{ichild};
                         else
@@ -756,6 +666,7 @@ classdef FloquetCircuit < FTCore
                     end % for         
                     % Using sparse matrixes saves a lot of memory at the
                     % expense of computational speed
+                    
                     switch self.use_sparse_matrices
                         case 0
                             SS = blkdiag(children_sparam{:});

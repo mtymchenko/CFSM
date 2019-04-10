@@ -1,6 +1,6 @@
 % Composite Floquet Scattering Matrix (CFSM) Circuit Simulator 
 % 
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -37,6 +37,7 @@ classdef FloquetCircuitComponent < FTCore & matlab.mixin.Copyable
         description % Component description
         input_spectrum 
         output_spectrum
+        nodes
     end % properties
     
     
@@ -56,18 +57,9 @@ classdef FloquetCircuitComponent < FTCore & matlab.mixin.Copyable
         
                 
         function out = get_sparam(self,varargin)
-            % Returns S-params frequency sweep for a given circuit element
-            %   .get_sparam() returns the S-param sweep fro all ports and all
-            %   Floquet orders
-            %
-            %   .get_sparam(port_to, port_from) returns S-param for a given
-            %   input and output port for all Floquet orders
-            %
-            %   .get_sparam(port_to, port_from, m, n) returns S-param for a
-            %   given m-th and n-th Floquet orders of input and output ports,
-            %   respectively
         
             narginchk(1,5);
+                        
             N = self.N_orders;
             M = 2*N+1;
             
@@ -94,13 +86,15 @@ classdef FloquetCircuitComponent < FTCore & matlab.mixin.Copyable
                         Fports_from = M*(port_from-1)+N+1+n;
                         if self.is_valid_Floquet_port(Fports_to) && self.is_valid_Floquet_port(Fports_from)
                             out = self.sparam_sweep(Fports_to, Fports_from, :);
+                        else
+                            error('Invalid Floquet port')
                         end % if
+                    else
+                        error('Invalid harmonic number')
                     end % if 
-                end % if
-                
+                end % if           
             else
-                error('Wrong number of input parameters')  
-                
+                error('Wrong number of input parameters')     
             end % if
 
         end % fun
@@ -130,14 +124,11 @@ classdef FloquetCircuitComponent < FTCore & matlab.mixin.Copyable
     methods (Access = protected)
         
         function out = is_valid_port(self, port)
-            % Checks if 'port' is a valid physical port number
-            %
-            out = 0;
             if isnumeric(port)
                 if ismember(port, self.ports)
                     out = 1;
                 else
-                    error('Specify correct port')
+                    out = 0;
                 end % if
             else
                 error('Port number must be an integer')
@@ -147,14 +138,11 @@ classdef FloquetCircuitComponent < FTCore & matlab.mixin.Copyable
         
         
         function out = is_valid_Floquet_port(self, Fport)
-            % Checks if 'Fport' is a valid Floquet port number
-            %
-            out = 0;
             if isnumeric(Fport)
                 if ismember(Fport, self.Fports)
                     out = 1;
                 else
-                    error('Specify correct Floquet port')
+                    out = 0;
                 end % if
             else
                 error('Floquet port number must be an integer')
@@ -166,12 +154,11 @@ classdef FloquetCircuitComponent < FTCore & matlab.mixin.Copyable
         function out = is_valid_order(self, order)
             % Checks if 'order' is a valid Floquet order
             %
-            out = 0;
             if isnumeric(order)
-                if order>=-self.N_orders && order<=self.N_orders
+                if ismember(order, [-self.N_orders:self.N_orders])
                     out = 1;
                 else
-                    error('Specify correct Floquet order')
+                    out = 0;
                 end % if
             else
                 error('Floquet order must be an integer')

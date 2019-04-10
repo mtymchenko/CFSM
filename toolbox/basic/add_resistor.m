@@ -15,13 +15,24 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% **********************************************************************
+% Adds a resistor to the circuit
+%
+%   Args:
+%       crt [handle] (required) - circuit handle
+%
+%       name [string] (required) -  name of the resistor
+%
 
 function add_resistor(crt, name, R, varargin)
 
-crt.add(Resistor(...
-    'Name', name,...
-    'Resistance', R,...
-    varargin{:}));
+if isobject(crt)
+    crt.add(Resistor(name, R, varargin{:}));
+else
+    error('"crt" must be a handle to FloquetCircuit object')
+end
 
 end
 

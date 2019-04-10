@@ -13,6 +13,34 @@
 %
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% **********************************************************************
+% Plots phase of S-params of the element
+%
+%   Args:
+%       crt [handle] (required) - circuit handle
+%
+%       id [string] (required) -  name of the element
+%
+%       SParams [cell] (optional) - which S-params to plot. 
+%           Example: {'S(1,2)','S(1,1)'}
+%           Plots all S-parameters by default. 
+%
+%       m [int array] (optional) - harmonic(s) at the destination port(s).
+%           Default is 0.
+%
+%       n [int array] (optional) - harmonic(s) at the source port(s).
+%           Default is 0.
+%
+%   Params:
+%
+%       'XUnits': 'Hz'(default) |'kHz'|'MHz'|'GHz'|'THz'|'PHz'
+%
+%       'YUnits': 'rad'(default)|'deg'|'pi'
+%
+%       'PostProcess':  'auto'(default)|'unwrap'
+%
 
 function [plt, l] = plot_sparam_phase(crt, id, varargin)
 

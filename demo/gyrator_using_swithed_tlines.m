@@ -12,7 +12,7 @@ crt.Z0 = 50*ohm; % reference impedance [ohm]
 
 
 R_min = 0;
-R_max = 1e8*ohm;
+R_max = 1e6*ohm;
 
 T = 1/crt.freq_mod; % time period [s]
 w = T/2; % pulse width [s]
@@ -48,6 +48,7 @@ connect_by_ports(crt, 'GYRATOR', {'PIN','BRANCH1','BRANCH2','PIN'},...
 crt.analyze();
 
 
+%%
 figure
 subplot(2,1,1)
 plot_sparam_mag(crt,'GYRATOR',{'S(1,1)','S(2,1)','S(1,2)','S(2,2)'},...
@@ -57,7 +58,8 @@ plot_sparam_mag(crt,'GYRATOR',{'S(1,1)','S(2,1)','S(1,2)','S(2,2)'},...
 subplot(2,1,2)
 plot_sparam_phase(crt,'GYRATOR',{'S(1,1)','S(2,1)','S(1,2)','S(2,2)'},...
     'XUnits', 'GHz',...
-    'YUnits', 'deg');
+    'YUnits', 'rad',...
+    'PostProcess','unwrap');
 
 
 

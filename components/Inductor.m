@@ -1,6 +1,6 @@
 % Composite Floquet Scattering Matrix (CFSM) Circuit Simulator 
 % 
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -28,23 +28,19 @@ classdef Inductor < FloquetCircuitComponent
         
         function self = Inductor(varargin)
         % Constructor function
+             
+            p = inputParser;
+            addRequired(p, 'Name', @(x) ischar(x) );
+            addRequired(p, 'L', @(x) isnumeric(x) );
+            addOptional(p, 'Description', '', @(x) ischar(x));
+            parse(p, varargin{:})
+            
             self.type = 'inductor';
             self.N_ports = 2;
-            
-            % Parsing input
-            if (~isempty(varargin))
-                for arg = 1:nargin
-                    if ischar(varargin{arg})
-                        if strcmp(varargin{arg}, 'Name')
-                        	self.name = varargin{arg+1};
-                        elseif strcmp(varargin{arg}, 'Inductance')
-                        	self.L = varargin{arg+1};
-                        elseif strcmp(varargin{arg}, 'Description')
-                        	self.description = varargin{arg+1};
-                        end % if
-                    end % if
-                end % for
-            end % if
+            self.name = p.Results.Name;
+            self.L = p.Results.L;
+            self.description = p.Results.Description;
+        
         end % fun
         
         
@@ -77,73 +73,37 @@ classdef Inductor < FloquetCircuitComponent
         function out = get_inductance(self, t)
             out = self.compute_IFT(self.get_inductance_spectrum(), t);
         end % fun
-        
-        
-        function compute_S11_sweep(self)
-            M = 2*self.N_orders+1;
-            I = eye(M);
-            n = [-self.N_orders:self.N_orders];
-            for iomega = 1:numel(self.omega)
-                Om = diag(self.omega(iomega)+n*self.omega_mod);
-                U = I*(self.Z0+self.Z0) + 1j*Om*self.get_L_toeplitz();
-                H11_matrix = I - self.Z0*I/U;
-                self.sparam_sweep([1:M],[1:M],iomega) = 2*H11_matrix - I;
-            end
-        end
-        
-        
-        function compute_S12_sweep(self)
-            M = 2*self.N_orders+1;
-            I = eye(M);
-            n = [-self.N_orders:self.N_orders];
-            for iomega = 1:numel(self.omega)
-                Om = diag(self.omega(iomega)+n*self.omega_mod);
-                U = I*(self.Z0+self.Z0) + 1j*Om*self.get_L_toeplitz();
-                H12_matrix = self.Z0*I/U;
-                self.sparam_sweep([1:M],M+[1:M],iomega) = 2*H12_matrix;
-            end
-        end % fun
-        
-        
-        function compute_S21_sweep(self)
-            M = 2*self.N_orders+1;
-            I = eye(M);
-            n = [-self.N_orders:self.N_orders];
-            for iomega = 1:numel(self.omega)
-                Om = diag(self.omega(iomega)+n*self.omega_mod);
-                U = I*(self.Z0+self.Z0) + 1j*Om*self.get_L_toeplitz();
-                H21_matrix = self.Z0*I/U;
-                self.sparam_sweep(M+[1:M],[1:M],iomega) = 2*H21_matrix;
-            end
-        end
-        
-        
-        function compute_S22_sweep(self)
-            M = 2*self.N_orders+1;
-            I = eye(M);
-            n = [-self.N_orders:self.N_orders];
-            for iomega = 1:numel(self.omega)
-                Om = diag(self.omega(iomega)+n*self.omega_mod);
-                U = I*(self.Z0+self.Z0) + 1j*Om*self.get_L_toeplitz();
-                H22_matrix = I - self.Z0*I/U;
-                self.sparam_sweep(M+[1:M],M+[1:M],iomega) = 2*H22_matrix - I;
-            end
-        end % fun
-        
+              
         
         function compute_sparam_sweep(self)
-            self.compute_S11_sweep();
-            self.compute_S12_sweep();
-            self.compute_S21_sweep();
-            self.compute_S22_sweep();
+            M = 2*self.N_orders+1;
+            I = eye(M);
+            n = [-self.N_orders:self.N_orders];
+            
+            Z01 = self.Z0*I;
+            Z02 = self.Z0*I;
+            
+            for iomega = 1:numel(self.omega)
+                Om = diag(self.omega(iomega)+n*self.omega_mod);
+                U = I/((Z01+Z02) + 1j*Om*self.get_L_toeplitz());
+                H11 = I - Z01*U;
+                H12 = Z01*U;
+                H21 = Z02*U;
+                H22 = I-Z02*U;
+                HH = [H11,H12;H21,H22];
+                II = blkdiag(I,I);
+                self.sparam_sweep(:,:,iomega) = 2*HH - II;
+            end
+            
             self.is_ready = 1;
         end     
         
         
-        % Computes Toeplitz matrix of Cmn Fourier coefficients
+       
         function self = compute_L_toeplitz(self)
             self.L_toeplitz = self.compute_FT_toeplitz(self.L);
         end % fun
+        
         
         function out = get_L_toeplitz(self)
             if isempty(self.L_toeplitz)==1

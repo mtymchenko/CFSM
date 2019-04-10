@@ -4,7 +4,7 @@ clear
 SI_units
 
 
-C = 50*pF;
+C = 100*pF;
 N_paths = 4;
 
 
