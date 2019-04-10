@@ -19,50 +19,32 @@
 %
 % ***********************************************************************
 % Connects 3 networks as
-%            _______             _______
-%           |       |           |       |
-%     1 o---|   1   |-----.-----|   2   |---o 2
-%           |_______|     |     |_______|    
-%                      ___|___
-%                     |       |
-%                     |   3   |      
-%                     |_______|     
-%                         |     
-%                         |       
-%                         o  
-%                         3
 %
 %
-%       connect_as_Y(crt, name, comp_ids)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           comp_ids[cell of [string]] - circuits comprising this subcircuit
+%     1 o---[A]---.---[C]---o 2
+%                 |     
+%                [B]
+%                 |
+%                 |
+%                 o 3
 %
-%       connect_as_Y(crt, name, comp_ids, N_internal)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           comp_ids[cell of [string]] - circuits comprising this subcircuit
-%           N_internal[int] - USE WITH CAUTION: number of harmonics to use when connecting
-%           (external number of harmonics remains the same)
 %
-% ***********************************************************************
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       children_names [cell of [string]] (required) - names of the three
+%           component to be connected. Example {'COMP1','COMP2','COMP3'}
+%
 
-function connect_as_Y(varargin)
+function connect_as_Y(crt, name, children_names)
 
-crt = varargin{1};
-name = varargin{2};
-comp_ids = varargin{3};
-
-if numel(comp_ids)~=3
+if numel(children_names)~=3
     error('Only 3 networks can be connected in pi')
 end
 
-switch nargin
-    case 3
-        connect_by_ports(crt, name, {comp_ids{:}}, {[2,3,5]}) 
-    case 4
-        connect_by_ports(crt, name, {comp_ids{:}}, {[2,3,5]}, varargin{4}) 
-    otherwise
-        error('Wrong number of input arguments');
-end % switch
+connect_by_ports(crt, name, children_names, {[2,3,5]}) 
+
+end
 

@@ -15,6 +15,26 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% *********************************************************************
+%   Adds the following circuit:
+%
+%       o--[C]--.---o
+%       1       |   2
+%              [R]
+%               |
+%             GROUND
+%
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       R [array of [double]] (required) - resistance R(t) over one period
+%
+%       C [array of [double]] (required) - capacitance C(t) over one period
+%       
 
 function add_RC_highpass_filter(crt, name, R, C)
 
@@ -23,3 +43,4 @@ add_capacitor(crt, ['CAP_',name], C);
 
 make_shunt_T(crt, ['SHUNT_RES_',name], {['RES_',name]});
 connect_in_series(crt, name, {['CAP_',name], ['SHUNT_RES_',name]})
+end

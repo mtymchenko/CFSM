@@ -15,62 +15,44 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-
-% ***********************************************************************
-% Connects 3 networkds in pi configuration
 %
-%                      _______
-%                     |       |
-%     1 o-------.-----|   2   |-----.-------o 2
-%            ___|___  |_______|  ___|___
-%           |       |           |       |
-%           |   1   |           |   3   | 
-%           |_______|           |_______|
-%               |                   |
-%             __|__               __|__
-%             /////               /////
-%
-%
-%       connect_as_pi(crt, name, comp_ids)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           comp_ids[cell of [string]] - circuits comprising this subcircuit
-%
-%       connect_as_pi(crt, name, comp_ids, N_internal)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           comp_ids[cell of [string]] - circuits comprising this subcircuit
-%           N_internal[int] - USE WITH CAUTION: number of harmonics to use when connecting
-%           (external number of harmonics remains the same)
 %
 % ***********************************************************************
+% Connects 3 networks as
+%
+%
+%     1 o---.--[B]--.---o 2
+%           |       |     
+%          [A]     [C]
+%           |       |
+%           '---.---'
+%               |
+%             GROUND
+%
+%
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       children_names [cell of [string]] (required) - names of the three
+%           component to be connected. Example {'COMP1','COMP2','COMP3'}
+%
 
-function connect_as_pi(varargin)
+function connect_as_pi(crt, name, children_names)
 
-crt = varargin{1};
-name = varargin{2};
-compids = varargin{3};
-
-if numel(compids)~=3
+if numel(children_names)~=3
     error('Only 3 networks can be connected in pi')
 end
 
-name1 = ['SHUNT_',crt.compid(compids{1}).name,'_',name];
-name2 = ['SHUNT_',crt.compid(compids{3}).name,'_',name];
+name1 = ['SHUNT_',crt.compid(children_names{1}).name,'_',name];
+name2 = ['SHUNT_',crt.compid(children_names{3}).name,'_',name];
 
-switch nargin
-    case 3   
-        make_shunt_T(crt, name1, compids{1});
-        make_shunt_T(crt, name2, compids{3});
-        connect_in_series(crt, name, {name1, compids{2}, name2})
-    case 4
-        make_shunt_T(crt, name1, compids{1}, varargin{4});
-        make_shunt_T(crt, name2, compids{3}, varargin{4});
-        connect_in_series(crt, name, {name1, compids{2}, name2}, varargin{4})
-    otherwise
-        error('Wrong number of input arguments');
-end % switch
+make_shunt_T(crt, name1, children_names{1});
+make_shunt_T(crt, name2, children_names{3});
+connect_in_series(crt, name, {name1, children_names{2}, name2})
+        
+end
 
 
 

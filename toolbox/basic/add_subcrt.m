@@ -1,6 +1,6 @@
 % Composite Floquet Scattering Matrix (CFSM) Circuit Simulator 
 % 
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -19,6 +19,17 @@
 %
 % **********************************************************************
 % Adds a new subcircuit
+%
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       children [array of [string]] (required) - cell list of chlidrens' 
+%           names, for example {'COMP1','COMP2','COMP3'}
+%
+%       links [cell of [double]] (required) - links among childrens' ports
+%           Example: {[2,3], [4,5], [6,8]}
 %
 
 function add_subcrt(crt, name, children, links, varargin)

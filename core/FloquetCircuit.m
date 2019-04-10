@@ -19,7 +19,7 @@
 classdef FloquetCircuit < FTCore
     
     properties (Constant)
-        version = '0.81'
+        version = '0.82'
     end % properties
     
     

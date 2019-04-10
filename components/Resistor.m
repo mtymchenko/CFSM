@@ -31,14 +31,14 @@ classdef Resistor < FloquetCircuitComponent
             % Constructor function    
             
             p = inputParser;
-            addRequired(p, 'name', @(x) ischar(x) );
+            addRequired(p, 'Name', @(x) ischar(x) );
             addRequired(p, 'R', @(x) isnumeric(x) );
             addOptional(p, 'Description', '', @(x) ischar(x));
             parse(p, varargin{:})
             
             self.type = 'resistor';
             self.N_ports = 2;
-            self.name = p.Results.name;
+            self.name = p.Results.Name;
             self.R = p.Results.R;
             self.description = p.Results.Description;
             

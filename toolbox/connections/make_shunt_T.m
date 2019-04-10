@@ -16,50 +16,35 @@
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 %
-%
-% **********************************************************************
-% Connects a network as
-%     1 o------.------o 2
-%           ___|___
-%          |       |
-%          |   1   |
-%          |_______|
-%              |
-%            __|__  
-%            /////
-%
-%
-%       make_shunt_T(crt, name, comp_id)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           children[cell of [string]] - circuits comprising this subcircuit
-%
-%       make_shunt_T(crt, name, comp_id, N_internal)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           children[cell of [string]] - circuits comprising this subcircuit
-%           N_internal[int] - USE WITH CAUTION: number of harmonics to use when connecting
-%           (external number of harmonics remains the same)
+
 %
 % ***********************************************************************
+% Connects network A as:
+%
+%      
+%     1 o---.---o 2
+%           | 
+%          [A]
+%           |
+%         GROUND
+%
+%
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       children_names [string] (required) - name of component A
+%
 
-function make_shunt_T(varargin)
+function make_shunt_T(crt, name, children_names)
 
-crt = varargin{1};
-name = varargin{2};
-compid = varargin{3};
-
-if numel(compid)~=1
+if numel(children_names)~=1
     error('Only 1 networks can be connected in pi')
 end
 
 add_joint(crt, 'JNT3', 3);
 
-switch nargin
-    case 3
-        connect_by_ports(crt, name, {'JNT3', compid{:}}, {[3,4], [5,0]});
-    case 4
-        connect_by_ports(crt, name, {'JNT3', compid{:}}, {[3,4], [5,0]}, varargin{4});
-    otherwise
-        error('Wrong number of input parameters');
+connect_by_ports(crt, name, [{'JNT3'}, children_names(:)], {[3,4], [5,0]});
+
 end

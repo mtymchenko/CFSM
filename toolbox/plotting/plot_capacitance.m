@@ -36,7 +36,7 @@
 %       'Mode': 'complex' (default)|'Re'|'Im'
 %
 
-function plot_capacitance(crt, id, varargin)
+function plot_capacitance(varargin)
 % Plots capacitance of the element <id>
 %
 
@@ -49,7 +49,7 @@ addOptional(p, 'time', [], @(x) isnumeric(x) );
 addOptional(p, 'XUnits', 's', @(x) any(validatestring(x, {'as','fs','ps','ns','us','ms','s'})) )
 addOptional(p, 'YUnits', 'pF', @(x) any(validatestring(x, {'aF','fF','pF','nF','uF','mF','F'})) )
 addOptional(p, 'Mode', 'complex', @(x) any(validatestring(x, {'complex','Re','Im'})) )
-parse(p, crt, id, varargin{:})
+parse(p, varargin{:})
 
 crt = p.Results.crt;
 cmp = crt.compid(p.Results.id);
@@ -70,7 +70,7 @@ end
 x_unit_factor = get_unit_factor(x_units);
 y_unit_factor = get_unit_factor(y_units);
 
-C = cmp.get_capacitance(t);
+C = get_capacitance(crt, cmp.name, t);
 
 X = t;
 Y = [];

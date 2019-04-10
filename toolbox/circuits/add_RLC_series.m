@@ -15,6 +15,27 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% *********************************************************************
+%   Adds the following circuit:
+%
+%           
+%       o---[R]--[L]--[C]---o
+%       1                   2
+%
+%
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       R [array of [double]] (required) - resistance R(t) over one period
+%
+%       L [array of [double]] (required) - inductance L(t) over one period
+%
+%       C [array of [double]] (required) - capacitance C(t) over one period
+%    
 
 function add_RLC_series(crt, name, R, L, C)
 

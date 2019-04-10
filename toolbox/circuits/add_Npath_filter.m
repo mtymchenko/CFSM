@@ -15,8 +15,9 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-function add_Npath_filter(crt, name, C, N_paths, delay, varargin)
+%
+%
+% *********************************************************************
 % Creates N-path filter with shunt capacitances C in each branch
 %
 %   Ideal N-path filter:
@@ -28,7 +29,9 @@ function add_Npath_filter(crt, name, C, N_paths, delay, varargin)
 %          'FallTime', 10e-12, ...
 %          'Noise', normrnd(0, 3e-12))
 %
- 
+
+function add_Npath_filter(crt, name, C, N_paths, delay, varargin)
+
 p = inputParser;
 addOptional(p, 'MinResistance', 0, @(x) isnumeric(x) );
 addOptional(p, 'MaxResistance', 1e6, @(x) isnumeric(x) );
@@ -88,6 +91,8 @@ for n = [2:N_paths]
             connect_in_parallel(crt, ['PATHS1-',num2str(n),'_',name], {['PATHS1-',num2str(n-1),'_',name], ['PATH',num2str(n),'_',name]});
         end
     end
+end
+
 end
 
 

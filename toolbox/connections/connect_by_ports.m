@@ -20,52 +20,24 @@
 % ***********************************************************************
 % Connects networks in arbitrary configurations
 % 
-%       connect_by_ports(crt, children, links)
-%           crt[obj] - circuit object
-%           children[cell of [string]] - circuits comprising this subcircuit
-%           links[array] - array of links like [to_port2, from_port1; to_port3, from_port4]
+%     1       2   5       6
+%     o--[A]--*   *--[C]--o
 %
-%       connect_by_ports(crt, name, children, links)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           children[cell of [string]] - circuits comprising this subcircuit
-%           links[array] - array of links like [to_port2, from_port1; to_port3, from_port4]
-%
-%       connect_by_ports(crt, name, children, links, N_internal)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           children[cell of [string]] - circuits comprising this subcircuit
-%           links[array] - array of links like [to_port2, from_port1; to_port3, from_port4]
-%           N_internal[int] - USE WITH CAUTION: number of harmonics to use when connecting
-%           (external number of harmonics remains the same)
+%             3 *
+%               |
+%              [B]
+%               |
+%             4 o
+%               
+%   Example: connect_by_ports(crt, 'NTWRK', {'A','B','C'}, {[2,3,5]})
 %
 %
-% EXAMPLE:
-%           _______           _______
-%       1  |       |  2   4  |       |   5
-%       o--|  "A"  |--o + o--|  "B"  |---o
-%          |_______|         |_______|    
-%              |
-%              o 3
-%              +
-%              o 6
-%           ___|___
-%          |       |
-%          |  "C"  |      
-%          |_______|     
-%              |           
-%              o 7
-%
-% CODE:
-%   connect_by_ports(crt, 'NTWRK', {'A','B','C'}, [2,4; 3,6])
-%
-% ***********************************************************************
 
-function connect_by_ports(crt, name, children, links, varargin)
+function connect_by_ports(crt, name, children_names, links, varargin)
 
-add_subcrt(crt, name, children, links, varargin{:});
+add_subcrt(crt, name, children_names, links, varargin{:});
 
-end % fun
+end
 
 
 

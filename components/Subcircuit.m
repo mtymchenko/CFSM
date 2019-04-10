@@ -30,20 +30,10 @@ classdef Subcircuit < FloquetCircuitComponent
         inner_Fports % [array] internal Floquet ports' indexes
         outer_Fports % [array] external Floquet ports' indexes
         children
-        links
-        solver_mode
-        
-%         all_Fports_as_matrix    % [array] all Floquet ports' indexes. 
-%                                 % Each column is for one physical port
-%         
-%         inner_Fports_as_matrix  % [array] internal Floquet ports' indexes
-%                                 % Each column is for one physical port
-%                                
-%         outer_Fports_as_matrix  % [array] external Floquet ports' indexes. 
-%                                 % Each column is for one physical port 
-                                
+        links                               
                                 
     end % properties
+    
     
     methods
         
@@ -59,7 +49,6 @@ classdef Subcircuit < FloquetCircuitComponent
             parse(p, varargin{:})
         
             self.type = 'circuit';
-            self.solver_mode = 0;
             self.name = p.Results.Name;
             self.children = p.Results.Children;
             self.links = p.Results.Links;

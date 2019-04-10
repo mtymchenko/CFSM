@@ -1,4 +1,6 @@
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Composite Floquet Scattering Matrix (CFSM) Circuit Simulator
+%
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 %
 % This program is free software: you can redistribute it and/or modify
@@ -15,6 +17,9 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-function out = get_capacitance(crt, compid, t)
-out = crt.compid(compid).get_capacitance(t);
+function out = get_capacitance(crt, name, t)
+if strcmp(crt.compid(name).type,'capacitor')
+    out = crt.compid(name).get_capacitance(t);
+else
+    error(['Component "',crt.compid(name),'" is not a capacitor'])
 end

@@ -36,7 +36,7 @@
 %       'Mode': 'complex' (default)|'Re'|'Im'
 %
 
-function plot_inductance(crt, id, varargin)
+function plot_inductance(varargin)
 
 narginchk(2,7);
 
@@ -47,7 +47,7 @@ addOptional(p, 'time', [], @(x) isnumeric(x));
 addOptional(p, 'XUnits', 's', @(x) any(validatestring(x, {'as','fs','ps','ns','us','ms','s'})) )
 addOptional(p, 'YUnits', 'nH', @(x) any(validatestring(x, {'aH','fH','pH','nH','uH','mH','H'})) )
 addOptional(p, 'Mode', 'complex', @(x) any(validatestring(x, {'complex','Re','Im'})) )
-parse(p, crt, id, varargin{:})
+parse(p, varargin{:})
 
 crt = p.Results.crt;
 cmp = crt.compid(p.Results.id);
@@ -68,7 +68,7 @@ end
 x_unit_factor = get_unit_factor(x_units);
 y_unit_factor = get_unit_factor(y_units);
 
-L = cmp.get_inductance(t);
+L = get_inductance(crt, cmp.name, t);
 
 X = t;
 Y = [];

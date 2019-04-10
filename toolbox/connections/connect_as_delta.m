@@ -18,45 +18,30 @@
 %
 %
 % ***********************************************************************
-%  Connects 3 networks as
-%                      _______        
-%                     |       |         
-%     1 o------.------|   3   |------.------o 3
-%              |      |_______|      |
-%           ___|___               ___|___
-%          |       |             |       |
-%          |   1   |             |   2   |
-%          |_______|             |_______|
-%              |                     |
-%              |                     |
-%              '----------.----------'
-%                         |
-%                         |
-%                         o
-%                         2
+% Connects 3 networks as
 %
 %
-%       connect_as_delta(crt, name, comp_ids)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           comp_ids[cell of [string]] - circuits comprising this subcircuit
+%     1 o---.--[A]--.---o 2
+%           |       |     
+%          [C]     [B]
+%           |       |
+%           '---.---'
+%               |
+%               o 3
 %
-%       connect_as_delta(crt, name, comp_ids, N_internal)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           comp_ids[cell of [string]] - circuits comprising this subcircuit
-%           N_internal[int] - USE WITH CAUTION: number of harmonics to use when connecting
-%           (external number of harmonics remains the same)
 %
-% ***********************************************************************
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       children_names [cell of [string]] (required) - names of the three
+%           component to be connected. Example {'COMP1','COMP2','COMP3'}
+%
 
-function connect_as_delta(varargin)
+function connect_as_delta(crt, name, children_names)
 
-crt = varargin{1};
-name = varargin{2};
-compids = varargin{3};
-
-if numel(compids)~=3
+if numel(children_names)~=3
     error('Only 3 networks can be connected in delta topology')
 end
 
@@ -64,18 +49,10 @@ add_pin(crt, ['PIN1_',name]);
 add_pin(crt, ['PIN2_',name]);
 add_pin(crt, ['PIN3_',name]);
 
-switch nargin
-    case 3
-        connect_by_ports(crt, name, ...
-            {['PIN1_',name],compids{1},['PIN2_',name],compids{2},['PIN3_',name],compids{3}},...
-            {[2,3,12], [4,5,7], [8,9,11]}) 
-    case 4
-        connect_by_ports(crt, name, ...
-            {['PIN1_',name],compids{1},['PIN2_',name],compids{2},['PIN3_',name],compids{3}},...
-            {[2,3,12], [4,5,7], [8,9,11]}, varargin{4}) 
-    otherwise
-        error('Wrong number of input arguments');
-end % switch
+connect_by_ports(crt, name, ...
+    {['PIN1_',name],children_names{1},['PIN2_',name],children_names{2},['PIN3_',name],children_names{3}},...
+    {[2,3,12], [4,5,7], [8,9,11]})
+end
 
 
 

@@ -20,13 +20,21 @@
 % ***********************************************************************
 % Creates a network like this
 %
-%            R1(t)     _____     R2(t)
-%            ____     |     |     ____
-%    1 o----|____|----|  A  |----|____|----o 2 
-%                     |_____|
-% 
+%       o---[R1]--[A]--[R2]---o 
+%       1                     2 
 %
-% ***********************************************************************
+%
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       comp_id [string] (required) - name of the network A
+%
+%       R1 [array of [double]] (required) - resistance R1(t) over one period
+%
+%       R2 [array of [double]] (required) - resistance R2(t) over one period       
+%  
 
 function add_switched_network(crt, name, comp_id, R1, R2)
 

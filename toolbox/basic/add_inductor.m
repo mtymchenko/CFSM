@@ -1,6 +1,6 @@
 % Composite Floquet Scattering Matrix (CFSM) Circuit Simulator 
 % 
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -21,9 +21,11 @@
 % Adds an inductor to the circuit
 %
 %   Args:
-%       crt [handle] (required) - circuit handle
+%       crt [object] (required) - circuit object
 %
 %       name [string] (required) -  name of the inductor
+%
+%       L [array of [double]] (required) - inductance L(t) over one period
 %
 
 function add_inductor(crt, name, L, varargin)

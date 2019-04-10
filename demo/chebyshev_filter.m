@@ -21,8 +21,6 @@ make_shunt_T(crt, 'SHUNT_CAP', {'CAP'});
 connect_in_series(crt, 'CHEBFILTER', {'IND1','SHUNT_CAP','IND2','SHUNT_CAP','IND1'})
 
 
-
-
 crt.analyze();
 
 figure

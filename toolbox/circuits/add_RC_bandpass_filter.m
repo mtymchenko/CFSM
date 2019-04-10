@@ -15,6 +15,30 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% *********************************************************************
+%   Adds the following circuit:
+%
+%       o---[C1]--.--[R2]--.----o
+%       1         |        |    2
+%                [R1]    [C2]
+%                 |        |
+%              GROUND    GROUND
+%
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       R1 [array of [double]] (required) - resistance R1(t) over one period
+%
+%       C1 [array of [double]] (required) - capacitance C1(t) over one period
+%
+%       R2 [array of [double]] (required) - resistance R2(t) over one period
+%
+%       C2 [array of [double]] (required) - capacitance C2(t) over one period
+%
 
 function add_RC_bandpass_filter(crt, name, R1, C1, R2, C2)
 

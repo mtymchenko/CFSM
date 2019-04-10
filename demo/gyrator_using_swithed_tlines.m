@@ -5,7 +5,7 @@ SI_units
 
 % Creating circuit and setting params
 crt = FloquetCircuit();
-crt.freq = linspace(0.001,4,100)*GHz; % frequency range [Hz]
+crt.freq = linspace(0.001,4,150)*GHz; % frequency range [Hz]
 crt.freq_mod = 1*GHz; % modulation frequency [Hz]
 crt.N_orders = 32; % number of Fourier harmonics [1]
 crt.Z0 = 50*ohm; % reference impedance [ohm]

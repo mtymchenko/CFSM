@@ -1,6 +1,6 @@
 % Composite Floquet Scattering Matrix (CFSM) Circuit Simulator 
 % 
-% Copyright (C) 2017  Mykhailo Tymchenko
+% Copyright (C) 2019  Mykhailo Tymchenko
 % Email: mtymchenko@utexas.edu
 % 
 % This program is free software: you can redistribute it and/or modify
@@ -19,56 +19,40 @@
 %
 % ***********************************************************************
 % Connects networks in parallel
-%                _______
-%               |       |
-%           .---|   1   |---.
-%           |   |_______|   |
-%     1 o---|    _______    |---o 2
-%           |   |       |   |
-%           .---|   2   |---.
-%           |   |_______|   | 
-%           :               :
-%                  ...
 %
 %
-%       connect_in_parallel(crt, name, children)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           children[cell of [string]] - circuits comprising this subcircuit
+%           .---[A]---.
+%           |         |
+%     1 o---'---[B]---'---o 2
+%           |         |
+%           '---[C]---'
+%           |         |
+%               ...
 %
-%       connect_in_parallel(crt, name, children, N_internal)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           children[cell of [string]] - circuits comprising this subcircuit
-%           N_internal[int] - USE WITH CAUTION: number of harmonics to use when connecting
-%           (external number of harmonics remains the same)
 %
-% ***********************************************************************
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       children_names [cell of [string]] (required) - names of component to be
+%           connected. Example {'COMP1','COMP2','COMP3'}
+%
 
-
-function connect_in_parallel(varargin)
-
-crt = varargin{1};
-name = varargin{2};
-compids = varargin{3};
+function connect_in_parallel(crt, name, children_names)
 
 add_pin(crt, ['PIN1_',name])
 add_pin(crt, ['PIN2_',name])
 
 links{1} = 2;
-links{2} = 2+2*numel(compids)+1;
-for icomp = 1:numel(compids)
+links{2} = 2+2*numel(children_names)+1;
+for icomp = 1:numel(children_names)
     links{1} = [links{1}, 3+2*(icomp-1)];
     links{2} = [links{2}, 4+2*(icomp-1)];
 end
 
-switch nargin
-    case 3
-        connect_by_ports(crt, name, {['PIN1_',name], compids{:}, ['PIN2_',name]}, links);
-    case 4
-         connect_by_ports(crt, name, {['PIN1_',name], compids{:}, ['PIN2_',name]}, links, varargin{4});
-    otherwise
-        error('Wrong number of input parameters');
+connect_by_ports(crt, name, {['PIN1_',name], children_names{:}, ['PIN2_',name]}, links);
+
 end
 
 

@@ -18,19 +18,25 @@
 %
 %
 % ***********************************************************************
-% Creates a network like this
+% Adds the following circuit:
 %
-%            R1(t)          R2(t)
-%            ____           ____
-%    1 o----|____|----.----|____|----o 2 
-%                     |
-%                   __|__
-%                   _____ C
-%                     |
-%                   __|__
-%                   /////  
+%      o---[R1]--.--[R2]---o 
+%      1         |         2
+%               [C]
+%                |
+%              GROUND
 %
-% ***********************************************************************
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       C [array of [double]] (required) - capacitance C(t) over one period
+%
+%       R1 [array of [double]] (required) - resistance R1(t) over one period
+%
+%       R2 [array of [double]] (required) - resistance R2(t) over one period       
+%  
 
 function add_switched_capacitor(crt, name, C, R1, R2)
 

@@ -18,41 +18,35 @@
 %
 %
 % ***********************************************************************
-% Connects networks in series
-%            _______     _______
-%           |       |   |       |
-%     1 o---|   1   |---|   2   |-- ... --o 2
-%           |_______|   |_______|
+% Connects networks in parallel
 %
 %
-%       connect_in_series(crt, name, children)
-%           crt[obj] - circuit object
-%           name[string] - name of a subcircuit
-%           children[cell of [string]] - circuits comprising this subcircuit
+%       o---[A]--[B]--[C]-- ... ---o 2
+%
+%
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       children_names [cell of [string]] (required) - names of component 
+%           to be connected. Example {'COMP1','COMP2','COMP3'}
+%
 
+function connect_in_series(crt, name, children_names)
 
-function connect_in_series(varargin)
-
-crt = varargin{1};
-name = varargin{2};
-children = varargin{3};
 
 links = {};
-for ichild = 1:numel(children)-1
-   if crt.compid(children(ichild)).N_ports==2
+for ichild = 1:numel(children_names)-1
+   if crt.compid(children_names(ichild)).N_ports==2
        links{ichild} = [2,3] + 2*(ichild-1);
    else
        error('Children must have 2 ports to connect in series')
    end 
 end
 
-switch nargin
-    case 3
-        connect_by_ports(crt, name, children, links);
-    case 4
-        connect_by_ports(crt, name, children, links, varargin{4});
-    otherwise
-        error('Wrong number of input parameters');
+connect_by_ports(crt, name, children_names, links);
+
 end
 
 

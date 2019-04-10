@@ -15,6 +15,26 @@
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+%
+%
+% *********************************************************************
+%   Adds the following circuit:
+%
+%       o--[R]--.---o
+%       1       |   2
+%              [C]
+%               |
+%             GROUND
+%
+%   Args:
+%       crt [object] (required) - circuit object
+%
+%       name [string] (required) -  name of the resistor
+%
+%       R [array of [double]] (required) - resistance R(t) over one period
+%
+%       C [array of [double]] (required) - capacitance C(t) over one period
+%       
 
 function add_RC_lowpass_filter(crt, name, R, C)
 
