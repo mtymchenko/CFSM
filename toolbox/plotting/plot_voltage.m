@@ -15,30 +15,46 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-function [plt, l] = plot_voltage(crt, id, port, t, varargin)
+function [plt, l] = plot_voltage(crt, varargin)
 
 p = inputParser;
+addRequired(p, 'id', @(x) ischar(x) || @(x) isnumeric(x) )
+addRequired(p, 'port', @(x) isnumeric(x) )
+addOptional(p, 'time', linspace(0,1./crt.freq_mod, 1000), @(x) isnumeric(x) )
 addOptional(p, 'XUnits', 's', @(x) any(validatestring(x, {'as','fs','ps','ns','us','ms','s'})))
 addOptional(p, 'YUnits', 'V', @(x) any(validatestring(x, {'aV','fV','pV','nV','uV','mV','V','kV','MV','GV'})))
 addOptional(p, 'Mode', 'real', @(x) any(validatestring(x, {'real','imag','complex'})))
-parse(p, varargin{:});
+parse(p, varargin{:})
 
-x_unit_factor = get_unit_factor(p.Results.XUnits);
-y_unit_factor = get_unit_factor(p.Results.YUnits);
+
+id = p.Results.id;
+port = p.Results.port;
+t = p.Results.time;
+x_units = p.Results.XUnits;
+y_units = p.Results.YUnits;
+mode = p.Results.Mode;
+
+x_unit_factor = get_unit_factor(x_units);
+y_unit_factor = get_unit_factor(y_units);
 
 voltage = get_voltage(crt, id, port, t);
 
-if strcmp(p.Results.Mode, 'real') 
-    plt = plot(t/x_unit_factor, real(voltage)/y_unit_factor, 'LineWidth', 1.5);
-elseif strcmp(p.Results.Mode, 'imag')
-    plt = plot(t/x_unit_factor, imag(voltage)/y_unit_factor, 'LineWidth', 1.5);
-    l = legend('Im');
-elseif strcmp(p.Results.Mode, 'complex')
-    plt = plot(t/x_unit_factor, [real(voltage); imag(voltage)]/y_unit_factor, 'LineWidth', 1.5);
-    l = legend('Re','Im');
+X = t;
+Y = [];
+legend_entries = {};
+
+if strcmp(mode, 'real') || strcmp(mode, 'complex')
+    Y = [Y; real(voltage)];
+    legend_entries = [legend_entries(:)', {'Re'}];
 end
-xlabel(['Time, {\itt} (', p.Results.XUnits ,')'])
-ylabel(p.Results.YUnits)
-title(['Voltage, v_{',num2str(port),'}(t)'])
+if strcmp(mode, 'imag') || strcmp(mode, 'complex')
+    Y = [Y; imag(voltage)];
+    legend_entries = [legend_entries(:)', {'Im'}];
+end
+
+plt = plot(X/x_unit_factor, Y/y_unit_factor, 'LineWidth', 1.5);
+l = legend(legend_entries{:});
+xlabel(['Time, t (', x_units ,')'])
+ylabel(['Voltage, v_{',num2str(port),'}(t) (', y_units ,')'])
 
 end % fun

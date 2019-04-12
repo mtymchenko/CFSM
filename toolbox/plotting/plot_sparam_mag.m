@@ -57,7 +57,7 @@ addOptional(p, 'YUnits', 'dB', @(x) any(validatestring(x, {'linear','dB'})))
 parse(p, crt, id, varargin{:})
 
 crt = p.Results.crt;
-cmp = crt.compid(p.Results.id);
+cmp = crt.get_comp(p.Results.id);
 sparams = p.Results.SParams;
 m = p.Results.m;
 n = p.Results.n;

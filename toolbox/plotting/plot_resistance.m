@@ -48,11 +48,11 @@ addRequired(p, 'id', @(x) ischar(x) || @(x) isnumeric(x) )
 addOptional(p, 'time', [], @(x) isnumeric(x));
 addOptional(p, 'XUnits', 's', @(x) any(validatestring(x, {'as','fs','ps','ns','us','ms','s'})) )
 addOptional(p, 'YUnits', 'Ohm', @(x) any(validatestring(x, {'aOhm','fOhm','pOhm','nOhm','uOhm','mOhm','Ohm','kOhm','MOhm','GOhm','TOhm'})) )
-addOptional(p, 'Mode', 'complex', @(x) any(validatestring(x, {'complex','Re','Im'})) )
+addOptional(p, 'Mode', 'real', @(x) any(validatestring(x, {'complex','real','imag'})) )
 parse(p, varargin{:})
 
 crt = p.Results.crt;
-cmp = crt.compid(p.Results.id);
+cmp = crt.get_comp(p.Results.id);
 t = p.Results.time;
 x_units = p.Results.XUnits;
 y_units = p.Results.YUnits;
@@ -70,16 +70,16 @@ end
 x_unit_factor = get_unit_factor(x_units);
 y_unit_factor = get_unit_factor(y_units);
 
-R = get_resistance(crt, cmp.name, t);
+R = cmp.get_resistance(t);
 
 X = t;
 Y = [];
 legend_entries = {};
-if strcmp(mode,'Re') || strcmp(mode,'complex')
+if strcmp(mode,'real') || strcmp(mode,'complex')
     Y = [Y; real(R)];
     legend_entries = [legend_entries(:), {'Re'}];
 end
-if strcmp(mode,'Im') || strcmp(mode,'complex')
+if strcmp(mode,'imag') || strcmp(mode,'complex')
     Y = [Y; imag(R)];
     legend_entries = [legend_entries(:), {'Im'}];
 end

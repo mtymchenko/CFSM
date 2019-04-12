@@ -15,50 +15,46 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-function plot_current(crt, id, port, varargin)
+function [plt, l] = plot_current(crt, varargin)
 
 p = inputParser;
+addRequired(p, 'id', @(x) ischar(x) || @(x) isnumeric(x) )
+addRequired(p, 'port', @(x) isnumeric(x) )
+addOptional(p, 'time', linspace(0,1./crt.freq_mod, 1000), @(x) isnumeric(x) )
 addOptional(p, 'XUnits', 's', @(x) any(validatestring(x, {'as','fs','ps','ns','us','ms','s'})))
-addOptional(p, 'YUnits', 'A', @(x) any(validatestring(x, {'aA','fA','pA','nA','uA','mA','A'})))
+addOptional(p, 'YUnits', 'A', @(x) any(validatestring(x, {'aA','fA','pA','nA','uA','mA','A','kA','MA','GA'})))
 addOptional(p, 'Mode', 'real', @(x) any(validatestring(x, {'real','imag','complex'})))
+parse(p, varargin{:})
 
-N_optional_args = nargin-3;
 
-if N_optional_args >= 1 && isnumeric(varargin{1})
-    t = varargin{1};
-    if  N_optional_args >= 2 && isnumeric(varargin{2})
-        freq_id = varargin{2};
-        parse(p, varargin{3:end})
-    else
-        parse(p, varargin{2:end})
-    end 
-else
-    t = linspace(0,1./crt.freq_mod, 1000);
-    freq_id = 1;
-    parse(p, varargin{:})
-end
+id = p.Results.id;
+port = p.Results.port;
+t = p.Results.time;
+x_units = p.Results.XUnits;
+y_units = p.Results.YUnits;
+mode = p.Results.Mode;
 
-x_unit_factor = get_unit_factor(p.Results.XUnits);
-y_unit_factor = get_unit_factor(p.Results.YUnits);
+x_unit_factor = get_unit_factor(x_units);
+y_unit_factor = get_unit_factor(y_units);
 
 current = get_current(crt, id, port, t);
 
-if freq_id>size(current,1)
-    error(['There is only ',num2str(size(current,1)),' solutions for element "',crt.compid(compid).name,'"'])
-end % if
+X = t;
+Y = [];
+legend_entries = {};
 
-if strcmp(p.Results.Mode, 'real') 
-    plt = plot(t/x_unit_factor, real(current(freq_id,:))/y_unit_factor, 'LineWidth', 1.5);
-    l = legend('Re');
-elseif strcmp(p.Results.Mode, 'imag')
-    plt = plot(t/x_unit_factor, imag(current(freq_id,:))/y_unit_factor, 'LineWidth', 1.5);
-    l = legend('Im');
-elseif strcmp(p.Results.Mode, 'complex')
-    plt = plot(t/x_unit_factor, [real(current(freq_id,:)); imag(current(freq_id,:))]/y_unit_factor, 'LineWidth', 1.5);
-    l = legend('Re','Im');
+if strcmp(mode, 'real') || strcmp(mode, 'complex')
+    Y = [Y; real(current)];
+    legend_entries = [legend_entries(:)', {'Re'}];
 end
-xlabel(['Time, {\itt} (', p.Results.XUnits ,')'])
-ylabel(p.Results.YUnits)
-title(['Current, i_{',num2str(port),'}(t)'])
+if strcmp(mode, 'imag') || strcmp(mode, 'complex')
+    Y = [Y; imag(current)];
+    legend_entries = [legend_entries(:)', {'Im'}];
+end
+
+plt = plot(X/x_unit_factor, Y/y_unit_factor, 'LineWidth', 1.5);
+l = legend(legend_entries{:});
+xlabel(['Time, t (', x_units ,')'])
+ylabel(['Current, i_{',num2str(port),'}(t) (', y_units ,')'])
 
 end % fun

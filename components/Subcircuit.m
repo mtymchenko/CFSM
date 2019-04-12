@@ -45,7 +45,7 @@ classdef Subcircuit < FloquetCircuitComponent
             addRequired(p, 'Children', @(x) iscellstr(x));
             addRequired(p, 'Links', @(x) iscell(x));
             addOptional(p, 'Description', '', @(x) ischar(x));
-            addOptional(p, 'IsBlackBox', 1, @(x) isnumeric(x) && ismember(x, [0,1]));
+            addOptional(p, 'IsBlackBox', 0, @(x) isnumeric(x) && ismember(x, [0,1]));
             parse(p, varargin{:})
         
             self.type = 'circuit';

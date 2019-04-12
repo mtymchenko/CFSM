@@ -50,7 +50,7 @@ addOptional(p, 'Mode', 'complex', @(x) any(validatestring(x, {'complex','Re','Im
 parse(p, varargin{:})
 
 crt = p.Results.crt;
-cmp = crt.compid(p.Results.id);
+cmp = crt.get_comp(p.Results.id);
 t = p.Results.time;
 x_units = p.Results.XUnits;
 y_units = p.Results.YUnits;
@@ -68,7 +68,7 @@ end
 x_unit_factor = get_unit_factor(x_units);
 y_unit_factor = get_unit_factor(y_units);
 
-L = get_inductance(crt, cmp.name, t);
+L = cmp.get_inductance(t);
 
 X = t;
 Y = [];

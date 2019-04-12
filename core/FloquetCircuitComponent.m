@@ -38,6 +38,7 @@ classdef FloquetCircuitComponent < FTCore & matlab.mixin.Copyable
         input_spectrum 
         output_spectrum
         nodes
+        parents
     end % properties
     
     

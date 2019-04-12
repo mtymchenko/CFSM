@@ -29,10 +29,10 @@ classdef FloquetCircuit < FTCore
         freq_mod % modulation frequency [Hz]
         N_orders % [int] how many Floquet orders to take into account [-N..N]
         Z0 % reference impedance [ohm]
-        input_is_pulse
-        compnames_list = {};
-        compids_list = [];
+        compnames = {};
+        compids = [];
         
+        broadband_excitation
         use_sparse_matrices = 0
         warnings_on = 0
     end % properties
@@ -72,8 +72,8 @@ classdef FloquetCircuit < FTCore
                 comp.id = self.get_compid_by_name(comp.name);
             else
                 comp.id = numel(self.comp)+1;
-                self.compnames_list = [self.compnames_list(:)', {comp.name}];
-                self.compids_list = [self.compids_list, comp.id];
+                self.compnames = [self.compnames(:)', {comp.name}];
+                self.compids = [self.compids, comp.id];
             end
             
             comp.freq = self.freq;
@@ -87,7 +87,9 @@ classdef FloquetCircuit < FTCore
                 % if is not circuit, run update()
                 self.comp{comp.id}.update();
             else
-                
+                for child = comp.children
+                    self.get_comp(child).parents = [self.get_comp(child).parents(:)', {self.get_comp(comp.id).name}];
+                end
                 self.sort_ports(comp.name);
             end % if
 
@@ -95,20 +97,23 @@ classdef FloquetCircuit < FTCore
 
         
         
-        function out = compid(self, querry_id)
-            % Returns the object self.comp{querry_id}
-            %
-            if isnumeric(querry_id)
-                comp_id = querry_id;
+        function out = get_comp(self, id)
+            if iscell(id), id = id{1}; end
+            if ischar(id)
+                if self.is_valid_compname(id)
+                    out = self.comp{self.get_compid_by_name(id)};
+                else
+                    error(['Component "',id,'" does not exist'])
+                end            
+            elseif isnumeric(id)
+                if self.is_valid_compid(id)
+                    out = self.comp{id};
+                else
+                    error(['Component with ID=',num2str(id),' does not exist'])
+                end   
             else
-                comp_id = self.get_compid_by_name(querry_id);
+                error('Component identifier must be an integer or a string')
             end % if
-            
-            try
-                out = self.comp{comp_id};
-            catch
-                error(['Component "',num2str(comp_id),'" does not exist'])
-            end % try
         end % fun
         
         
@@ -135,7 +140,7 @@ classdef FloquetCircuit < FTCore
             
             for icopy = 1:N_copies
                 isuffix = [suffix, num2str(icopy)];
-                copies_names{icopy} = self.copycomp(self.compid(compid).name, isuffix);
+                copies_names{icopy} = self.copycomp(self.get_comp(compid).name, isuffix);
             end % for
 
         end % fun
@@ -234,16 +239,16 @@ classdef FloquetCircuit < FTCore
             copy_name = [name, suffix];
             
             % IMPORTANT: copy() function makes a deep copy of an object handle
-            self.add(copy_name, copy(self.compid(name)));
+            self.add(copy_name, copy(self.get_comp(name)));
             %     parent_copy_name
-            if strcmp(self.compid(copy_name).type, 'circuit')
-                for ichild = 1:numel(self.compid(copy_name).children)
-                    child_id = self.compid(copy_name).children(ichild);
-                    child_name = self.compid(child_id).name;
+            if strcmp(self.get_comp(copy_name).type, 'circuit')
+                for ichild = 1:numel(self.get_comp(copy_name).children)
+                    child_id = self.get_comp(copy_name).children(ichild);
+                    child_name = self.get_comp(child_id).name;
                     child_copy_name = [child_name, suffix];
-                    self.copycomp(self.compid(child_id).name, suffix);
+                    self.copycomp(self.get_comp(child_id).name, suffix);
                     % Overwrite old children IDs with copied children IDs
-                    self.compid(copy_name).children(ichild) = self.compid(child_copy_name).id;
+                    self.get_comp(copy_name).children(ichild) = self.get_comp(child_copy_name).id;
                 end % for
             end % if
             
@@ -280,9 +285,8 @@ classdef FloquetCircuit < FTCore
         
         
         function out = is_unique_name(self, name)
-            
             if ischar(name)
-                if numel(self.compnames_list)~=0 && ismember(name, self.compnames_list)
+                if numel(self.compnames)~=0 && ismember(name, self.compnames)
                     out = 0;
                 else
                     out = 1;
@@ -304,57 +308,93 @@ classdef FloquetCircuit < FTCore
                 end % for
             end % if
         end
-                
         
-        function out = get_compid_by_name(self, queried_name)
-            % Returns object of component id with desired name
-            %
-            out = [];
-            for compid = 1:numel(self.comp)
-                if self.compid_exists(compid)
-                    if strcmp(self.comp{compid}.name, queried_name)==1
-                        out = compid;
-                        return
+        
+        
+        function out = get_parent_name(self, child_name)
+            if self.is_valid_compname(child_name)
+                out = [];
+                for compid = self.compids
+                    if strcmp(self.get_comp(compid).type, 'circuit')==1
+                        if strcmp(self.get_comp(compid).children, child_name)==1
+                            out = [out, compid];
+                        end % if
                     end % if
-                end % if
-            end % for
-            if isempty(out)
-                error(['Component "',queried_name,'" does not exist'])
+                end
+            end % if
+        end % fun
+        
+                        
+        
+        function out = get_parent_id(self, child_id)
+            if self.is_valid_compid(child_id)
+                out = [];
+                for compid = self.compids
+                    if strcmp(self.get_comp(compid).type, 'circuit')==1
+                        if ismember(child_id, self.get_comp(compid).type)
+                            out = [out, compid];
+                        end % if
+                    end % if
+                end
             end % if
         end % fun
         
         
-        function out = get_parent_id(self, child_id)
-            out = [];
-            for compid = 1:numel(self.comp)
-                if self.compid_exists(compid)
-                    if strcmp(self.comp{compid}.type, 'circuit')==1
-                        if ismember(child_id, self.comp{compid}.children)                           
-                             out = [out, compid];
-                        end % if
-                    end % if
-                end % if
-            end % for
-        end % fun
         
         function out = get_frequency_id(self, freq)
             [~,out] = min(abs(self.freq-freq));
         end
         
         
-        function out = compid_exists(self, queried_compid)
-            out = 0;
-            if ~isempty(self.comp{queried_compid})
-                out = 1;
+        function out = is_valid_compid(self, id)
+            if isnumeric(id) 
+                if ismember(id, self.compids)
+                    out = 1;
+                else
+                    out = 0;
+                end
+            else
+                error('Component ID must be an integer number')
             end
-        end % fun
+        end
+               
         
+        function out = is_valid_compname(self, name)
+            if ischar(name) 
+                if ismember(name, self.compnames)
+                    out = 1;
+                else
+                    out = 0;
+                end
+            else
+                error('Component name must be string')
+            end
+        end
+        
+        
+        function out = get_compname_by_id(self, id)
+            if self.is_valid_compid(id)
+                out = self.compnames{self.compids==id};
+            else
+                error(['',num2str(id),' is an invalid component ID'])
+            end
+        end
+        
+        
+        function out = get_compid_by_name(self, name)
+            if self.is_valid_compname(name)
+                out = self.compids(strcmp(self.compnames,name)==1);
+            else
+                error(['"',name,'" is an invalid component name'])
+            end
+        end
+               
         
         function out = get_numeric_compids(self, compids)
             out = zeros(1, numel(compids));
             for icomp = 1:numel(compids)
                 if isnumeric(compids{icomp})
-                    if self.compid_exists(compids{icomp})
+                    if self.is_valid_compid(compids{icomp})
                         out(icomp) = compids{icomp};
                     else
                         error(['Component #',num2str(compids{icomp}),' does not exist']);
@@ -367,8 +407,8 @@ classdef FloquetCircuit < FTCore
         
         
         function out = port_exists(self, compid, port)
-            ismember(port, self.compid(compid).ports)
-            if ismember(port, self.compid(compid).ports)
+            ismember(port, self.get_comp(compid).ports)
+            if ismember(port, self.get_comp(compid).ports)
                 out = 1;
             else
                 out = 0;
@@ -377,7 +417,7 @@ classdef FloquetCircuit < FTCore
         
         
         function update_component(self, compid)
-            cmp = self.compid(compid);
+            cmp = self.get_comp(compid);
             cmp.freq = self.freq;
             cmp.freq_mod = self.freq_mod;
             cmp.omega = 2*pi*self.freq;
@@ -389,17 +429,42 @@ classdef FloquetCircuit < FTCore
         
         
         
-        function excite_port(self, compid, port, voltage)
+        function apply_voltage_spectrum(self, compid, port, voltage_spectrum)
             if numel(port)==1
-                if numel(voltage)==1
-                    input_spectrum = voltage/(2*sqrt(real(self.Z0)))*ones(1,numel(self.freq)); % power wave spectrum
+                if numel(voltage_spectrum)==numel(self.freq)
+                    input_spectrum = voltage_spectrum/(2*sqrt(real(self.Z0)));
+                    self.set_input_spectrum(compid, port, input_spectrum);
                 else
-                    input_spectrum = voltage/(2*sqrt(real(self.Z0)));
+                    error('The size of voltage spectrum must match the number of frequencies in simulation')
                 end % if
-                self.set_input_spectrum(compid, port, input_spectrum);
             else
                 error('Cannot excite more than 1 port');
             end % if
+        end % fun
+        
+        
+        
+        function process_excitation(self, id)
+            cmp = self.get_comp(id);
+            parent_id = self.get_parent_id(self.get_compid_by_name(cmp.name));
+            if numel(parent_id)==1
+                self.get_comp(parent_id).is_blackbox = 0;
+                process_excitation(self, self.get_comp(parent_id).name);
+            end % if
+            switch scope
+                case 'all'
+                    if strcmp(cmp.type, 'circuit')
+                        if ~isempty(cmp.children)
+                            for ichild = 1:numel(cmp.children)
+                                process_excitation(self, self.get_comp(cmp.children(ichild)).name, 'all')
+                            end % for
+                        end % if
+                    end % if
+                case 'none'
+                    % do nothing
+                otherwise
+                    error(['Invalid "scope value']);
+            end % switch
         end % fun
         
         
@@ -410,9 +475,9 @@ classdef FloquetCircuit < FTCore
             N = self.N_orders;
             M = 2*N+1;           
             % Preparing the empty input spectrum
-            self.compid(compid).input_spectrum = zeros(M*self.compid(compid).N_ports, numel(self.freq));
+            self.get_comp(compid).input_spectrum = zeros(M*self.get_comp(compid).N_ports, numel(self.freq));
             % Setting the input spectrum
-            self.compid(compid).input_spectrum(M*(port-1)+N+1,:) = spectrum;
+            self.get_comp(compid).input_spectrum(M*(port-1)+N+1,:) = spectrum;
         end % fun
         
         
@@ -421,8 +486,8 @@ classdef FloquetCircuit < FTCore
             %
             N = self.N_orders;
             M = 2*N+1;
-            if ~isempty(self.compid(compid).input_spectrum)
-                out = self.compid(compid).input_spectrum(M*(port-1)+[1:M],:);
+            if ~isempty(self.get_comp(compid).input_spectrum)
+                out = self.get_comp(compid).input_spectrum(M*(port-1)+[1:M],:);
             else
                 error('Input spectrum is empty')
             end % if
@@ -434,8 +499,8 @@ classdef FloquetCircuit < FTCore
             %
             N = self.N_orders;
             M = 2*N+1;
-            if ~isempty(self.compid(compid).output_spectrum)
-                out = self.compid(compid).output_spectrum(M*(port-1)+[1:M],:);
+            if ~isempty(self.get_comp(compid).output_spectrum)
+                out = self.get_comp(compid).output_spectrum(M*(port-1)+[1:M],:);
             else
                 error('Output spectrum is empty')
             end
@@ -467,7 +532,7 @@ classdef FloquetCircuit < FTCore
         function out = get_scattering_matrix(varargin)
             self = varargin{1};
             id = varargin{2};
-            SS = self.compid(id).get_sparam();
+            SS = self.get_comp(id).get_sparam();
             II = eye(size(SS(:,:,1)));
             M = 2*self.N_orders + 1;
             if nargin == 3
@@ -475,9 +540,9 @@ classdef FloquetCircuit < FTCore
                 Z0_new = varargin{3};
                 if numel(Z0_new) == 1
                     ZZ0_new = II*Z0_new;
-                elseif numel(Z0_new) == self.compid(id).N_ports
-                    ZZ0_new = diag(reshape(repmat(Z0_new,M,1), self.compid(id).N_Fports,1));
-                elseif numel(Z0_new) == self.compid(id).N_Fports
+                elseif numel(Z0_new) == self.get_comp(id).N_ports
+                    ZZ0_new = diag(reshape(repmat(Z0_new,M,1), self.get_comp(id).N_Fports,1));
+                elseif numel(Z0_new) == self.get_comp(id).N_Fports
                     ZZ0_new = diag(Z0_new);
                 end % if
                 RR = (ZZ0_new-ZZ0_old)/(ZZ0_new+ZZ0_old);
@@ -487,7 +552,7 @@ classdef FloquetCircuit < FTCore
                     out(:,:,ifreq) = AA\(SS(:,:,ifreq)-RR)/(II-RR*SS(:,:,ifreq))*AA;
                 end
             else
-                out = self.compid(id).get_sparam();
+                out = self.get_comp(id).get_sparam();
             end % if
             
         end % fun
@@ -498,7 +563,7 @@ classdef FloquetCircuit < FTCore
             M = 2*self.N_orders+1;
             II = eye(size(SS(:,:,1)));
             ZZ0 = zeros(size(SS(:,:,1)));
-            for iport = 1:self.compid(id).N_ports
+            for iport = 1:self.get_comp(id).N_ports
                 ZZ0(M*(iport-1)+[1:M], M*(iport-1)+[1:M]) = eye(M)*self.Z0; 
             end
             out = zeros(size(SS));
@@ -529,7 +594,7 @@ classdef FloquetCircuit < FTCore
             out = cell(numel(compids),1);
             for icomp = 1:numel(compids)
                 compid = compids(icomp);
-                out{icomp} = self.compid(compid).get_sparam();
+                out{icomp} = self.get_comp(compid).get_sparam();
             end % for
         end % fun
         
@@ -538,7 +603,7 @@ classdef FloquetCircuit < FTCore
             % Computes CFSMs of the component 'compid'. If it has children,
             % it computes CFSMs of all children as necessary
             %            
-            cmp = self.compid(compid);
+            cmp = self.get_comp(compid);
             if cmp.is_ready == 0
                 self.update_component(compid);
                 if strcmp(cmp.type,'circuit')
@@ -546,7 +611,7 @@ classdef FloquetCircuit < FTCore
                         for ichild = 1:numel(cmp.children)
                             child_id = cmp.children(ichild);
                             % Recursive sparam computation
-                            self.compute_sparam(self.compid(child_id).id);
+                            self.compute_sparam(self.get_comp(child_id).id);
                         end % for
                     end % if
                     self.compute_cfsm_sweep(compid);
@@ -569,13 +634,13 @@ classdef FloquetCircuit < FTCore
             
                 N = self.N_orders;
                 M = 2*N+1;
-                cmp = self.compid(id); % Reference to a handle object
+                cmp = self.get_comp(id); % Reference to a handle object
 
                 cmp.N_all_ports = 0;
                 cmp.N_all_Fports = 0;
                 
                 for child = cmp.children
-                    cmp.N_all_ports = cmp.N_all_ports + self.compid(child).N_ports;
+                    cmp.N_all_ports = cmp.N_all_ports + self.get_comp(child).N_ports;
                 end % for
                 cmp.N_all_Fports = cmp.N_all_ports*M;
                 
@@ -610,7 +675,7 @@ classdef FloquetCircuit < FTCore
         
         
         function out = is_circuit(self, id)
-            if strcmp(self.compid(id).type,'circuit')
+            if strcmp(self.get_comp(id).type,'circuit')
                 out = 1;
             else
                 out = 1;
@@ -620,9 +685,9 @@ classdef FloquetCircuit < FTCore
         
         function set_children_spectra(self, compid, children_input_spectrum, children_output_spectrum)
             child_ports_start_from = 0;
-            cmp = self.compid(compid);
+            cmp = self.get_comp(compid);
             for ichild = 1:numel(cmp.children)
-                child = self.compid(cmp.children(ichild));
+                child = self.get_comp(cmp.children(ichild));
                 % Obtain child ports as they enter the parent circuit
                 child_ports = child_ports_start_from + [1:child.N_ports];
                 % Obtain corresponding Floquet ports
@@ -639,7 +704,7 @@ classdef FloquetCircuit < FTCore
         function compute_cfsm_sweep(self, compid)
         % Computes CFSM frequency sweep using FSMs of children
         %
-            cmp = self.compid(compid); % handle to 'compid' object
+            cmp = self.get_comp(compid); % handle to 'compid' object
             
             if numel(cmp.children)==1 && isempty(cmp.links)
                 % If there is only one child, there is nothing to connect,
@@ -686,7 +751,7 @@ classdef FloquetCircuit < FTCore
             % Computes CFSM from aggregated scattering matrix SS using the
             % interconnection matrix FF
             %  
-            cmp = self.compid(compid);
+            cmp = self.get_comp(compid);
             
             % Using sparse matrixes saves a lot of memory at the
             % expense of computational speed
@@ -714,7 +779,7 @@ classdef FloquetCircuit < FTCore
             % Constructs interconnection matrix FF required during
             % computation of CFSM
             %
-            cmp = self.compid(compid);
+            cmp = self.get_comp(compid);
             switch self.use_sparse_matrices
                 case 0
                     out = zeros(cmp.N_Fports);
@@ -746,7 +811,7 @@ classdef FloquetCircuit < FTCore
             % outgoing spectra of internal ports, an, bn, and the outgoing
             % spectra of outer ports, bM
             %
-            cmp = self.compid(compid);          
+            cmp = self.get_comp(compid);          
             % Computing CFSM
             SSMN = SS(cmp.outer_Fports, cmp.outer_Fports);
             SSMn = SS(cmp.outer_Fports, cmp.inner_Fports);
@@ -764,7 +829,7 @@ classdef FloquetCircuit < FTCore
         function compute_excitation(self, id)                                
             % Computes excitation applied to component 'comp_id'
             %
-            cmp = self.compid(id);
+            cmp = self.get_comp(id);
             N = self.N_orders;
             M = numel([-N:N]);               
             if strcmp(cmp.type,'circuit')~=1 || cmp.is_blackbox==1
@@ -798,7 +863,7 @@ classdef FloquetCircuit < FTCore
                     SS = blkdiag(children_sparam{:});       
                     % Compute the spectra of all inner ports of the network
                     % using the incoming spectra of outer portss                    
-                    [an, bn, bN] = self.compute_inner_ports_spectra(id, SS, FF, children_input_spectra(self.compid(id).outer_Fports,ifreq)); 
+                    [an, bn, bN] = self.compute_inner_ports_spectra(id, SS, FF, children_input_spectra(self.get_comp(id).outer_Fports,ifreq)); 
                     % Incoming signals at inner ports
                     children_input_spectra(cmp.inner_Fports, ifreq) = an; 
                     % Outgoing signals at inner ports

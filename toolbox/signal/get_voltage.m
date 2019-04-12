@@ -20,15 +20,7 @@
 function out = get_voltage(crt, compid, port, t)
 voltage_spectrum = get_voltage_spectrum(crt, compid, port);
 out = zeros(1, numel(t));
-if crt.input_is_pulse
-    df = diff(crt.freq);
-    df = [df(1),df];
-    for ifreq = 1:numel(crt.freq)
-        out = out + crt.compute_IFT(voltage_spectrum(:,ifreq), t).*exp(1j*2*pi*crt.freq(ifreq)*t)*(2*pi*df(ifreq));
-    end
-else
-    for ifreq = 1:numel(crt.freq)
-        out = out + crt.compute_IFT(voltage_spectrum(:,ifreq), t).*exp(1j*2*pi*crt.freq(ifreq)*t);
-    end
+for ifreq = 1:numel(crt.freq)
+    out = out + crt.compute_IFT(voltage_spectrum(:,ifreq), t).*exp(1j*2*pi*crt.freq(ifreq)*t);
 end
 end

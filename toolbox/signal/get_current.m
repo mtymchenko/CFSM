@@ -15,10 +15,10 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-function current = get_current(crt, compid, port, t)
+function out = get_current(crt, compid, port, t)
 current_spectrum = get_current_spectrum(crt, compid, port);
-current = zeros(numel(crt.freq), numel(t));
+out = zeros(1, numel(t));
 for ifreq = 1:numel(crt.freq)
-    current(ifreq,:) = crt.compute_IFT(current_spectrum(:,ifreq), t).*exp(1j*2*pi*crt.freq(ifreq)*t);
+    out = out + crt.compute_IFT(current_spectrum(:,ifreq), t).*exp(1j*2*pi*crt.freq(ifreq)*t);
 end
 end

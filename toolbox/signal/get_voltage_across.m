@@ -15,11 +15,11 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-function out = get_voltage_across(crt, compid, t)
-if crt.compid(compid).N_ports~=2
+function out = get_voltage_across(crt, id, t)
+if crt.get_comp(id).N_ports~=2
     error('The element must have two ports')
 else
-v1 = get_voltage(crt, compid, 1, t);
-v2 = get_voltage(crt, compid, 2, t);
+v1 = get_voltage(crt, id, 1, t);
+v2 = get_voltage(crt, id, 2, t);
 out = v1-v2;
 end

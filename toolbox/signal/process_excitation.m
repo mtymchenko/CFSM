@@ -15,10 +15,26 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-function set_input_voltage(crt, compid, port, V_in, duration)
-% Applies the finite-length temporal voltage signal to a
-% specified port of component comp_id
-%
-powerwave_in = V_in/(2*sqrt(crt.Z0)); % power wave
-set_input_signal(crt, compid, port, powerwave_in, duration);
+function process_excitation(crt, compid)
+
+cmp = crt.get_comp(compid);
+parent_id = crt.get_parent_id(crt.get_compid_by_name(cmp.name));
+if numel(parent_id)==1
+    crt.get_comp(parent_id).is_blackbox = 0;
+    process_excitation(crt, crt.get_comp(parent_id).name);
+end % if
+switch scope
+    case 'all'
+        if strcmp(cmp.type, 'circuit')
+            if ~isempty(cmp.children)
+                for ichild = 1:numel(cmp.children)
+                    process_excitation(crt, crt.get_comp(cmp.children(ichild)).name, 'all')
+                end % for
+            end % if
+        end % if
+    case 'none'
+        % do nothing
+    otherwise
+        error(['Invalid "scope value']);
+end % switch
 end % fun

@@ -38,7 +38,7 @@ function connect_in_series(crt, name, children_names)
 
 links = {};
 for ichild = 1:numel(children_names)-1
-   if crt.compid(children_names(ichild)).N_ports==2
+   if crt.get_comp(children_names{ichild}).N_ports==2
        links{ichild} = [2,3] + 2*(ichild-1);
    else
        error('Children must have 2 ports to connect in series')

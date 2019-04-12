@@ -15,9 +15,12 @@
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-function plt = plot_current_spectrum(crt, compid, port, varargin)
+function plt = plot_current_spectrum(crt, varargin)
 
 p = inputParser;
+addRequired(p, 'id', @(x) ischar(x) || @(x) isnumeric(x) )
+addRequired(p, 'port', @(x) isnumeric(x) )
+addOptional(p, 'time', linspace(0,1./crt.freq_mod, 1000), @(x) isnumeric(x) )
 addOptional(p, 'XUnits', 'Hz', @(x) any(validatestring(x, {'Hz','kHz','MHz','GHz','THz','PHz','harmonics'})))
 addOptional(p, 'YUnits', 'A', @(x) any(validatestring(x, {'fA','pA','nA','uA','mA','A','kA','MA','GA'})))
 addOptional(p, 'PlotType', 'default', @(x) any(validatestring(x, {'default','stem'})))
@@ -40,7 +43,7 @@ else
 end
 
 y_unit_factor = get_unit_factor(p.Results.YUnits);
-current_spectrum = get_current_spectrum(crt, compid, port);
+current_spectrum = get_current_spectrum(crt, id, port);
 Y = abs(current_spectrum(:,freq_id))/y_unit_factor;
 
 if strcmp(p.Results.PlotType, 'stem')
