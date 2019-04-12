@@ -59,6 +59,7 @@ addOptional(p, 'PostProcess', 'auto', @(x) any(validatestring(x, {'auto','unwrap
 parse(p, crt, id, varargin{:})
 
 crt = p.Results.crt;
+id = crt.Resulst.id;
 cmp = crt.get_comp(p.Results.id);
 sparams = p.Results.SParams;
 m = p.Results.m;
@@ -83,13 +84,13 @@ for i_sparam = 1:numel(sparams)
     ports = sscanf(sparam,'S(%d,%d)');
     if numel(m)==1 && numel(n)==1 && m==0 && n==0
         legend_entries{i_curve} = sprintf('S_{%d,%d}', ports(1), ports(2));
-        Y(i_curve,:) = angle(squeeze(crt.compid(id).get_sparam(ports(1),ports(2),m,n)));
+        Y(i_curve,:) = angle(squeeze(crt.get_comp(id).get_sparam(ports(1),ports(2),m,n)));
         i_curve = i_curve+1;
     else
         for im = 1:numel(m)
             for in = 1:numel(n)
                 legend_entries{i_curve} = sprintf('S_{%d,%d} (f_{%d}, f_{%d})', ports(1), ports(2), m(im), n(in));    
-                Y(i_curve,:) = angle(squeeze(crt.compid(id).get_sparam(ports(1),ports(2),m(im),n(in))));
+                Y(i_curve,:) = angle(squeeze(crt.get_comp(id).get_sparam(ports(1),ports(2),m(im),n(in))));
                 i_curve = i_curve+1;
             end
         end
