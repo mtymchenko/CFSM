@@ -42,7 +42,7 @@
 
 
 
-function [plt, l] = plot_sparam_mag(crt, id, varargin)
+function [plt, l] = plot_sparam_mag(varargin)
 
 narginchk(2,9)
 
@@ -54,10 +54,11 @@ addOptional(p, 'm', 0, @(x) isnumeric(x));
 addOptional(p, 'n', 0, @(x) isnumeric(x));
 addOptional(p, 'XUnits', 'Hz', @(x) any(validatestring(x, {'Hz','kHz','MHz','GHz','THz','PHz'})));
 addOptional(p, 'YUnits', 'dB', @(x) any(validatestring(x, {'linear','dB'})))
-parse(p, crt, id, varargin{:})
+parse(p, varargin{:})
 
 crt = p.Results.crt;
-cmp = crt.get_comp(p.Results.id);
+id = p.Results.id;
+cmp = crt.get_comp(id);
 sparams = p.Results.SParams;
 m = p.Results.m;
 n = p.Results.n;

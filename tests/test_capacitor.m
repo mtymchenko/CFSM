@@ -21,7 +21,7 @@ crt.analyze();
 
 %%
 figure
-plot_capacitance(crt, 'CAP', 'XUnits', 'ns', 'Mode', 'Re');
+plot_capacitance(crt, 'CAP', 'XUnits', 'ns', 'Mode', 'real');
 
 figure
 subplot(2,1,1)

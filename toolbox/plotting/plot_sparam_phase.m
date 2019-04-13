@@ -59,8 +59,8 @@ addOptional(p, 'PostProcess', 'auto', @(x) any(validatestring(x, {'auto','unwrap
 parse(p, crt, id, varargin{:})
 
 crt = p.Results.crt;
-id = crt.Resulst.id;
-cmp = crt.get_comp(p.Results.id);
+id = p.Results.id;
+cmp = crt.get_comp(id);
 sparams = p.Results.SParams;
 m = p.Results.m;
 n = p.Results.n;

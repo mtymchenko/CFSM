@@ -36,23 +36,22 @@
 %       'Mode': 'complex' (default)|'Re'|'Im'
 %
 
-function plot_capacitance(varargin)
+function plot_capacitance(crt, varargin)
 % Plots capacitance of the element <id>
 %
 
 narginchk(2,7);
 
 p = inputParser;
-addRequired(p, 'crt', @(x) isobject(x) )
 addRequired(p, 'id', @(x) ischar(x) || @(x) isnumeric(x) )
-addOptional(p, 'time', [], @(x) isnumeric(x) );
+addOptional(p, 'time', linspace(0,1/crt.freq_mod,1000), @(x) isnumeric(x) );
 addOptional(p, 'XUnits', 's', @(x) any(validatestring(x, {'as','fs','ps','ns','us','ms','s'})) )
 addOptional(p, 'YUnits', 'pF', @(x) any(validatestring(x, {'aF','fF','pF','nF','uF','mF','F'})) )
 addOptional(p, 'Mode', 'complex', @(x) any(validatestring(x, {'complex','real','imag'})) )
 parse(p, varargin{:})
 
-crt = p.Results.crt;
-cmp = crt.get_comp(p.Results.id);
+id = p.Results.id;
+cmp = crt.get_comp(id);
 t = p.Results.time;
 x_units = p.Results.XUnits;
 y_units = p.Results.YUnits;
@@ -61,11 +60,6 @@ mode = p.Results.Mode;
 if ~strcmp(cmp.type, 'capacitor')
     error(['Component ', cmp.name, ' is not a capacitor']);
 end 
-
-T = 1./crt.freq_mod;
-if isempty(t)
-    t = linspace(0, T, numel(cmp.C));
-end
 
 x_unit_factor = get_unit_factor(x_units);
 y_unit_factor = get_unit_factor(y_units);
