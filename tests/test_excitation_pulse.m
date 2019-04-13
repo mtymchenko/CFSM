@@ -80,16 +80,16 @@ grid on
 
 %%
 
-figure('Name','CAP current spectrum')
-plot_current_spectrum(crt, 'CAP', 1, 1, 'XUnits', 'GHz', 'YUnits', 'mA', 'PlotType', 'stem');
-axis([-10 10 -inf inf])
-grid on
-
-figure('Name','CAP current spectrum')
-plot_voltage_spectrum(crt, 'CAP', 1, 1, 'XUnits', 'GHz', 'YUnits', 'V', 'PlotType', 'stem');
-grid on
-axis([-10 10 -inf inf])
-
+% figure('Name','CAP current spectrum')
+% plot_current_spectrum(crt, 'CAP', 1, 1, 'XUnits', 'GHz', 'YUnits', 'mA', 'PlotType', 'stem');
+% axis([-10 10 -inf inf])
+% grid on
+% 
+% figure('Name','CAP current spectrum')
+% plot_voltage_spectrum(crt, 'CAP', 1, 1, 'XUnits', 'GHz', 'YUnits', 'V', 'PlotType', 'stem');
+% grid on
+% axis([-10 10 -inf inf])
+% 
 
 %%
 

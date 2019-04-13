@@ -31,7 +31,7 @@ port = p.Results.port;
 t = p.Results.time;
 x_units = p.Results.XUnits;
 y_units = p.Results.YUnits;
-plot_type = p.Results.PlotType;
+plot_type = p
 
 
 N_optional_args = nargin-3;

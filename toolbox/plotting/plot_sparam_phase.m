@@ -42,7 +42,7 @@
 %       'PostProcess':  'auto'(default)|'unwrap'
 %
 
-function [plt, l] = plot_sparam_phase(crt, id, varargin)
+function [plt, l] = plot_sparam_phase(varargin)
 
 
 narginchk(2,9)
@@ -56,7 +56,7 @@ addOptional(p, 'n', 0, @(x) isnumeric(x) );
 addOptional(p, 'XUnits', 'Hz', @(x) any(validatestring(x, {'Hz','kHz','MHz','GHz','THz','PHz'})) );
 addOptional(p, 'YUnits', 'rad', @(x) any(validatestring(x, {'rad','deg','pi'})) );
 addOptional(p, 'PostProcess', 'auto', @(x) any(validatestring(x, {'auto','unwrap'})) );
-parse(p, crt, id, varargin{:})
+parse(p, varargin{:})
 
 crt = p.Results.crt;
 id = p.Results.id;
