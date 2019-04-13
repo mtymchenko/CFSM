@@ -19,7 +19,7 @@
 % Plots phase of S-params of the element
 %
 %   Args:
-%       crt [handle] (required) - circuit handle
+%       crt [object] (required) - circuit object
 %
 %       id [string] (required) -  name of the element
 %
